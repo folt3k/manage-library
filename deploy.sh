@@ -10,7 +10,7 @@ git pull
 npm install
 rm -rf ./dist
 npm run build
+pm2 delete api
 pm2 start node ./dist/index.js --name api
 pm2 list all
-pm2 restart api
 sudo service nginx restart
