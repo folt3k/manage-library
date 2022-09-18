@@ -10,8 +10,8 @@ git pull
 kill -9 $(sudo lsof -t -i:8000)
 pm2 delete api
 rm -rf node_modules
-rm -rf ./dist
 npm install
+rm -rf ./dist
 npm run build
 pm2 start ./dist/index.js --name api
 pm2 list all
