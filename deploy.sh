@@ -7,6 +7,7 @@ git stash
 git fetch
 git checkout main
 git pull
+kill -9 $(sudo lsof -t -i:4000)
 pm2 delete api
 pm2 kill
 rm -rf ~/.pm2
