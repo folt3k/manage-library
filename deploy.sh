@@ -9,12 +9,10 @@ git checkout main
 git pull
 kill -9 $(sudo lsof -t -i:8000)
 pm2 delete api
-pm2 kill
-rm -rf ~/.pm2
 rm -rf node_modules
-npm install
 rm -rf ./dist
+npm install
 npm run build
-pm2 start node ./dist/index.js --name api --no-autorestart
+pm2 start ./dist/index.js --name api
 pm2 list all
 sudo service nginx restart
