@@ -15,6 +15,6 @@ rm -rf node_modules
 npm install
 rm -rf ./dist
 npm run build
-pm2 start node ./dist/index.js --name api
+pm2 start node ./dist/index.js --name api --no-autorestart
 pm2 list all
 sudo service nginx restart
