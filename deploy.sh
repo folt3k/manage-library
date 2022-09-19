@@ -13,6 +13,6 @@ rm -rf node_modules
 npm install
 rm -rf ./dist
 npm run build
-pm2 start  --name api
+pm2 start ./dist/index.js --name api
 pm2 list all
 systemctl restart nginx.service
