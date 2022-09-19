@@ -4,13 +4,15 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node ./src/index.ts",
+    "dev": "nodemon ./src/index.ts",
     "start": "npm run build && node ./dist/index.js",
     "build": "tsc"
   },
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "@prisma/client": "^4.3.1",
+    "express": "^4.18.1",
+    "prisma": "^4.3.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.14",
@@ -18,8 +20,9 @@
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
     "eslint": "^8.23.1",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "prettier": "^2.7.1",
+    "ts-node": "^10.9.1",
     "typescript": "^4.8.3"
   },
   "prettier": {
