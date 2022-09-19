@@ -1,11 +1,12 @@
 import express, { Express, Request, Response } from "express";
 
+const port = 8000;
 const app: Express = express();
 
 app.get("/", (req: Request, res: Response) => {
-	res.send("Express + TypeScript Server");
+  res.send("Express + TypeScript Server");
 });
 
-app.listen(8000, () => {
-	console.log(`⚡️[server]: Server is running at https://localhost:8000}`);
+app.listen(port, () => {
+  console.log(`Server is running at https://localhost:${port}`);
 });
