@@ -10,5 +10,6 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "moduleResolution": "node"
-  }
+  },
+  "files": ["./custom.d.ts"]
 }
