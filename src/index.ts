@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 app.use(routes);
 
-app.get("*", () => {
+app.use(() => {
   throw httpErrors.notFound();
 });
 
