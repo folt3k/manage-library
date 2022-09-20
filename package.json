@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
-    "start": "npm run build && node ./dist/src/index.js",
+    "start": "node ./dist/src/index.js",
     "build": "tsc"
   },
   "license": "ISC",
