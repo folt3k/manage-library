@@ -18,6 +18,8 @@ class HttpException extends Error {
         return "Musisz się zalogować, by mieć dostęp do tego zasobu.";
       case 403:
         return "Nie masz uprawnień do tego zasobu";
+      case 404:
+        return "Nie znaleziono takiego zasobu.";
       default:
         return "Wystąpił nieznany błąd";
     }

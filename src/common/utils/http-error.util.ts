@@ -1,9 +1,10 @@
 import HttpException from "../models/http";
 
-const httpErrors: { [key: string]: (message?: string) => HttpException } = {
+const httpErrors = {
   badRequest: (mesage?: string) => new HttpException(400, mesage),
   unauthorized: (mesage?: string) => new HttpException(401, mesage),
   forbidden: (mesage?: string) => new HttpException(403, mesage),
+  notFound: (mesage?: string) => new HttpException(404, mesage),
 };
 
 export default httpErrors;
