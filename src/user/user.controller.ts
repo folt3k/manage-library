@@ -6,9 +6,9 @@ const router = Router();
 
 router.post("/users", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const createdUser = await createUser(req.body);
+    const { password } = await createUser(req.body);
 
-    res.json(createdUser);
+    res.json({ password });
   } catch (err) {
     next(err);
   }
