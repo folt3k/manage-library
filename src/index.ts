@@ -4,14 +4,17 @@ import bodyParser from "body-parser";
 import HttpException from "./common/models/http";
 import prisma from "../prisma/client";
 import httpErrors from "./common/utils/http-error.util";
+import routes from "./routes";
 
 const port = 8000;
 const app: Express = express();
 
 app.use(bodyParser.json());
 
-app.get("/users", async (req: Request, res: Response, next: NextFunction) => {
-  next(httpErrors.badRequest());
+app.use(routes);
+
+app.get("*", () => {
+  throw new HttpException(404, "Nie znaleziono takiego zasobu.");
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

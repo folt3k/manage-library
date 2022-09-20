@@ -11,6 +11,20 @@ datasource db {
 }
 
 model User {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  firstName String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  pesel       Int      @unique
+  phoneNumber Int
+  role        UserRole
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Boolean  @default(true)
+}
+
+enum UserRole {
+  LIBRARIAN
+  READER
 }
