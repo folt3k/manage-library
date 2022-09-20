@@ -5,7 +5,7 @@ import httpErrors from "../common/utils/http-error.util";
 import { LoginDto } from "./auth.types";
 import { generateLoginToken } from "./auth.utils";
 
-export const logIn = async (dto: LoginDto): Promise<{ token: string }> => {
+export const login = async (dto: LoginDto): Promise<{ token: string }> => {
   const user = await prisma.user.findUnique({
     where: {
       email: dto.email,
