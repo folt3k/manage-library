@@ -19,9 +19,9 @@ app.get("*", () => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof HttpException) {
-    res.status(err.errorCode).json({ message: err.message });
-  } else if (err) {
-    res.status(500).json({ message: err.message || "Wstąpił nieznany błąd" });
+    res.status(err.errorCode).json({ code: err.errorCode, message: err.message });
+  } else {
+    res.status(500).json({ code: 500, message: err.message || "Wstąpił nieznany błąd" });
   }
 });
 
