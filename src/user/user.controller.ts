@@ -1,8 +1,9 @@
 import { UserRole } from "@prisma/client";
 import { NextFunction, Request, Router, Response } from "express";
-import { auth } from "../auth/auth.middlewares";
 
-import { createUser, getUsers } from "./user.service";
+import { auth } from "../auth/auth.middlewares";
+import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
+import { createUser, getReaders } from "./user.service";
 
 const router = Router();
 
@@ -20,14 +21,19 @@ router.post(
   }
 );
 
-router.get("/users", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const users = await getUsers();
+router.get(
+  "/users/readers",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = getPaginationParamsFromQuery(req.query);
+      const users = await getReaders(params);
 
-    res.json(users);
-  } catch (err) {
-    next(err);
+      res.json(users);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 export default router;
