@@ -2,15 +2,17 @@ import { User, UserRole } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import prisma from "../../prisma/client";
+import { CurrentUser } from "../auth/auth.models";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
+import httpErrors from "../common/utils/http-error.util";
 import { generateRandomPassword } from "../common/utils/random-password-generator.util";
 import { baseUserMapper } from "./user.mapper";
-import { CreateUserDto } from "./user.types";
+import { ChangePasswordDto, CreateUserDto } from "./user.types";
+import { generateHashPassword } from "./user.utils";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
-  const hashSalt = await bcrypt.genSalt(10);
   const randomPassword = generateRandomPassword();
-  const hashPassword = await bcrypt.hash(randomPassword, hashSalt);
+  const hashPassword = await generateHashPassword(randomPassword);
 
   const data: CreateUserDto = {
     ...dto,
@@ -22,6 +24,38 @@ export const createUser = async (dto: CreateUserDto): Promise<{ password: string
   return {
     password: randomPassword,
   };
+};
+
+export const changePassword = async (
+  dto: ChangePasswordDto,
+  currentUser: CurrentUser
+): Promise<User> => {
+  console.log(currentUser.id);
+
+  const user = await prisma.user.findFirstOrThrow({ where: { id: currentUser.id } });
+
+  const isCurrentPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+
+  if (!isCurrentPasswordValid) {
+    throw httpErrors.badRequest("Obecne hasło jest błędne.");
+  }
+
+  const isNewPasswordsEqual = dto.newPassword === dto.repeatedNewPassword;
+
+  if (!isNewPasswordsEqual) {
+    throw httpErrors.badRequest("Podane hasła muszą być identyczne.");
+  }
+
+  const newHashPassword = await generateHashPassword(dto.newPassword);
+
+  return await prisma.user.update({
+    where: {
+      id: currentUser.id,
+    },
+    data: {
+      password: newHashPassword,
+    },
+  });
 };
 
 export const getReaders = async (params: PaginationParams): Promise<ListWithPagination<User>> => {

@@ -3,7 +3,7 @@ import { NextFunction, Request, Router, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
-import { createUser, getReaders } from "./user.service";
+import { changePassword, createUser, getReaders } from "./user.service";
 
 const router = Router();
 
@@ -15,6 +15,20 @@ router.post(
       const { password } = await createUser(req.body);
 
       res.json({ password });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.post(
+  "/users/change-password",
+  auth(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await changePassword(req.body, req.user);
+
+      res.status(204).send();
     } catch (err) {
       next(err);
     }

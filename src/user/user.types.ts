@@ -9,3 +9,9 @@ export interface CreateUserDto {
   phoneNumber: number;
   role: UserRole;
 }
+
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+  repeatedNewPassword: string;
+}
