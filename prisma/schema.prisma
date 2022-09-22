@@ -24,6 +24,11 @@ model User {
   isActive    Boolean  @default(true)
 }
 
+model AssetSubject {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+}
+
 enum UserRole {
   LIBRARIAN
   READER

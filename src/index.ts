@@ -10,9 +10,7 @@ const port = 8000;
 const app: Express = express();
 
 app.use(cors());
-
 app.use(bodyParser.json());
-
 app.use(routes);
 
 app.use(() => {
