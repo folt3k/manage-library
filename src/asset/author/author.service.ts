@@ -10,7 +10,7 @@ export const createAssetAuthor = async (dto: CreateAssetAuthorDto): Promise<Asse
 };
 
 export const getAssetAuthors = async (): Promise<AssetAuthor[]> => {
-  const assetAuthors = await prisma.assetAuthor.findMany();
+  const assetAuthors = await prisma.assetAuthor.findMany({ include: { assets: true } });
 
   return assetAuthors;
 };

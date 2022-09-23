@@ -10,7 +10,7 @@ export const createAssetSubject = async (dto: CreateAssetSubjectDto): Promise<As
 };
 
 export const getAssetSubjects = async (): Promise<AssetSubject[]> => {
-  const assetSubjects = await prisma.assetSubject.findMany();
+  const assetSubjects = await prisma.assetSubject.findMany({ include: { assets: true } });
 
   return assetSubjects;
 };

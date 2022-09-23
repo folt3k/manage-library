@@ -24,15 +24,42 @@ model User {
   isActive    Boolean  @default(true)
 }
 
+model Asset {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  imageUrl         String         @default("http://example.image.png")
+  author           AssetAuthor    @relation(fields: [authorId], references: [id])
+  authorId         String         @db.ObjectId
+  publisher        String
+  publicationYear  Int
+  description      String?
+  isbn             String         @unique
+  type             AssetType
+  lubimyczytacLink String?
+  subjects         AssetSubject[] @relation(fields: [subjectIds], references: [id])
+  subjectIds       String[]       @db.ObjectId
+}
+
 model AssetSubject {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String   @unique
+  assets   Asset[]  @relation(fields: [assetIds], references: [id])
+  assetIds String[] @db.ObjectId
 }
 
 model AssetAuthor {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
   lastName  String
+  assets    Asset[]
+}
+
+// enums
+
+enum AssetType {
+  BOOK
+  AUDIOBOOK
+  MAGAZINE
 }
 
 enum UserRole {
