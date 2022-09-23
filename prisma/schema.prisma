@@ -29,6 +29,12 @@ model AssetSubject {
   name String @unique
 }
 
+model AssetAuthor {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String
+}
+
 enum UserRole {
   LIBRARIAN
   READER

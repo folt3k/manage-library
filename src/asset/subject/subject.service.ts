@@ -1,9 +1,9 @@
 import { AssetSubject } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
-import { createAssetSubjectDto } from "./subject.types";
+import { CreateAssetSubjectDto } from "./subject.types";
 
-export const createAssetSubject = async (dto: createAssetSubjectDto): Promise<AssetSubject> => {
+export const createAssetSubject = async (dto: CreateAssetSubjectDto): Promise<AssetSubject> => {
   const assetSubject = await prisma.assetSubject.create({ data: dto });
 
   return assetSubject;
