@@ -22,7 +22,7 @@ export const login = async (dto: LoginDto): Promise<{ token: string }> => {
     throw httpErrors.unauthorized("Podano błędne hasło");
   }
 
-  const token = generateLoginToken({ email: user.email });
+  const token = generateLoginToken(user);
 
   return { token };
 };
