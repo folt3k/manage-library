@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
 
 export interface CreateUserDto {
   email: string;
@@ -14,4 +14,8 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
   repeatedNewPassword: string;
+}
+
+export interface GetMeResponse {
+  user: Partial<User>;
 }

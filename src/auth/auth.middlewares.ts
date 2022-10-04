@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 
 import httpErrors from "../common/utils/http-error.util";
 import prisma from "../../prisma/client";
+import { TokenUserInfo } from "../user/user.models";
 
 export const auth =
   (options: { roles?: UserRole[] } = {}) =>
@@ -19,14 +20,14 @@ export const auth =
     }
 
     try {
-      const verfifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const verifiedToken = jwt.verify(token, process.env.JWT_SECRET) as { user: TokenUserInfo };
 
-      if (!verfifiedToken) {
+      if (!verifiedToken) {
         next(httpErrors.unauthorized("Podany token nie jest poprawny"));
       }
 
       const user = await prisma.user.findUnique({
-        where: { email: (verfifiedToken as { email: string }).email },
+        where: { email: verifiedToken.user.email },
         select: {
           id: true,
           role: true,

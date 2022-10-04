@@ -6,8 +6,8 @@ import { CurrentUser } from "../auth/auth.models";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
 import httpErrors from "../common/utils/http-error.util";
 import { generateRandomPassword } from "../common/utils/random-password-generator.util";
-import { baseUserMapper } from "./user.mapper";
-import { ChangePasswordDto, CreateUserDto } from "./user.types";
+import { baseUserMapper, userMeMapper } from "./user.mapper";
+import { ChangePasswordDto, CreateUserDto, GetMeResponse } from "./user.types";
 import { generateHashPassword } from "./user.utils";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
@@ -30,8 +30,6 @@ export const changePassword = async (
   dto: ChangePasswordDto,
   currentUser: CurrentUser
 ): Promise<User> => {
-  console.log(currentUser.id);
-
   const user = await prisma.user.findFirstOrThrow({ where: { id: currentUser.id } });
 
   const isCurrentPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
@@ -56,6 +54,14 @@ export const changePassword = async (
       password: newHashPassword,
     },
   });
+};
+
+export const getMe = async (currentUser: CurrentUser): Promise<GetMeResponse> => {
+  const user = await prisma.user.findFirstOrThrow({ where: { id: currentUser.id } });
+
+  return {
+    user: userMeMapper(user),
+  };
 };
 
 export const getReaders = async (params: PaginationParams): Promise<ListWithPagination<User>> => {

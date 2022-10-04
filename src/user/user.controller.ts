@@ -3,7 +3,7 @@ import { NextFunction, Request, Router, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
-import { changePassword, createUser, getReaders } from "./user.service";
+import { changePassword, createUser, getMe, getReaders } from "./user.service";
 
 const router = Router();
 
@@ -34,6 +34,16 @@ router.post(
     }
   }
 );
+
+router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const me = await getMe(req.user);
+
+    res.json(me);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get(
   "/users/readers",
