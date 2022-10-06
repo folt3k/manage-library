@@ -11,7 +11,6 @@ export interface CreateUserDto {
 }
 
 export interface ChangePasswordDto {
-  currentPassword: string;
   newPassword: string;
   repeatedNewPassword: string;
 }

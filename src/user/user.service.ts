@@ -30,14 +30,6 @@ export const changePassword = async (
   dto: ChangePasswordDto,
   currentUser: CurrentUser
 ): Promise<User> => {
-  const user = await prisma.user.findFirstOrThrow({ where: { id: currentUser.id } });
-
-  const isCurrentPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
-
-  if (!isCurrentPasswordValid) {
-    throw httpErrors.badRequest("Obecne hasło jest błędne.");
-  }
-
   const isNewPasswordsEqual = dto.newPassword === dto.repeatedNewPassword;
 
   if (!isNewPasswordsEqual) {
