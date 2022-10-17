@@ -3,6 +3,7 @@ import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../../auth/auth.middlewares";
 import { createAssetCategory, getAssetCategories } from "./categories.service";
+import { getPaginationParamsFromQuery } from "../../common/utils/pagination.utils";
 
 const router = Router();
 
@@ -24,8 +25,10 @@ router.get(
   "/asset-categories",
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
+    const params = getPaginationParamsFromQuery(req.query);
+
     try {
-      const assetCategories = await getAssetCategories();
+      const assetCategories = await getAssetCategories(params);
 
       res.json(assetCategories);
     } catch (err) {
