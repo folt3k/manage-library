@@ -14,9 +14,10 @@ export const createUser = async (dto: CreateUserDto): Promise<{ password: string
   const randomPassword = generateRandomPassword();
   const hashPassword = await generateHashPassword(randomPassword);
 
-  const data: CreateUserDto = {
+  const data = {
     ...dto,
     password: hashPassword,
+    role: UserRole.READER,
   };
 
   await prisma.user.create({ data });
