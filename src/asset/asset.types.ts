@@ -10,5 +10,5 @@ export interface CreateAssetDto {
   lubimyczytacLink?: string;
   type: AssetType;
   authorId: string;
-  subjectIds: string[];
+  categoryIds: string[];
 }

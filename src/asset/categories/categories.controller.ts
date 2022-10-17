@@ -2,18 +2,18 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../../auth/auth.middlewares";
-import { createAssetSubject, getAssetSubjects } from "./subject.service";
+import { createAssetCategory, getAssetCategories } from "./categories.service";
 
 const router = Router();
 
 router.post(
-  "/asset-subjects",
+  "/asset-categories",
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const assetSubject = await createAssetSubject(req.body);
+      const assetCategory = await createAssetCategory(req.body);
 
-      res.json(assetSubject);
+      res.json(assetCategory);
     } catch (err) {
       next(err);
     }
@@ -21,13 +21,13 @@ router.post(
 );
 
 router.get(
-  "/asset-subjects",
+  "/asset-categories",
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const assetSubjects = await getAssetSubjects();
+      const assetCategories = await getAssetCategories();
 
-      res.json(assetSubjects);
+      res.json(assetCategories);
     } catch (err) {
       next(err);
     }

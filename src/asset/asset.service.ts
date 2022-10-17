@@ -7,8 +7,8 @@ export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
   const asset = await prisma.asset.create({
     data: {
       ...dto,
-      subjects: {
-        connect: dto.subjectIds.map((subject) => ({ id: subject })),
+      categories: {
+        connect: dto.categoryIds.map((category) => ({ id: category })),
       },
     },
   });
@@ -17,7 +17,7 @@ export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
 };
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const assets = await prisma.asset.findMany({ include: { subjects: true, author: true } });
+  const assets = await prisma.asset.findMany({ include: { categories: true, author: true } });
 
   return assets;
 };

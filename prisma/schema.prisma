@@ -36,11 +36,11 @@ model Asset {
   isbn             String         @unique
   type             AssetType
   lubimyczytacLink String?
-  subjects         AssetSubject[] @relation(fields: [subjectIds], references: [id])
-  subjectIds       String[]       @db.ObjectId
+  categories         AssetCategory[] @relation(fields: [categoryIds], references: [id])
+  categoryIds       String[]       @db.ObjectId
 }
 
-model AssetSubject {
+model AssetCategory {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
   name     String   @unique
   assets   Asset[]  @relation(fields: [assetIds], references: [id])

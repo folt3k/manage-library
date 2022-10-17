@@ -3,7 +3,7 @@ import { Router } from "express";
 import userController from "./user/user.controller";
 import authController from "./auth/auth.controller";
 import assetsController from "./asset/asset.controller";
-import assetSubjectController from "./asset/subject/subject.controller";
+import assetSubjectController from "./asset/categories/categories.controller";
 import assetAuthorController from "./asset/author/author.controller";
 
 const router = Router();
