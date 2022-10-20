@@ -3,6 +3,7 @@ import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
 import { createAsset, getAssets } from "./asset.service";
+import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
 
 const router = Router();
 
@@ -21,8 +22,10 @@ router.post(
 );
 
 router.get("/assets", auth(), async (req: Request, res: Response, next: NextFunction) => {
+  const params = getPaginationParamsFromQuery(req.query);
+
   try {
-    const assets = await getAssets();
+    const assets = await getAssets(params);
 
     res.json(assets);
   } catch (err) {
