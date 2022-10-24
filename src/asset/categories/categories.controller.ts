@@ -2,7 +2,11 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../../auth/auth.middlewares";
-import { createAssetCategory, getAssetCategories } from "./categories.service";
+import {
+  createAssetCategory,
+  getAllAssetCategories,
+  getAssetCategories,
+} from "./categories.service";
 import { getPaginationParamsFromQuery } from "../../common/utils/pagination.utils";
 
 const router = Router();
@@ -29,6 +33,20 @@ router.get(
 
     try {
       const assetCategories = await getAssetCategories(params);
+
+      res.json(assetCategories);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  "/asset-categories/all",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const assetCategories = await getAllAssetCategories();
 
       res.json(assetCategories);
     } catch (err) {

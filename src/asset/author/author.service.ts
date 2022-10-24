@@ -4,6 +4,7 @@ import prisma from "../../../prisma/client";
 import { CreateAssetAuthorDto } from "./author.types";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
 import { listAssetAuthorMapper } from "./authors.mapper";
+import { Option } from "../../common/types/option";
 
 export const createAssetAuthor = async (dto: CreateAssetAuthorDto): Promise<AssetAuthor> => {
   const assetAuthor = await prisma.assetAuthor.create({ data: dto });
@@ -35,4 +36,14 @@ export const getAssetAuthors = async (
     total,
     items: data.map((author) => listAssetAuthorMapper(author)),
   };
+};
+
+export const getAllAssetAuthors = async (): Promise<Option<string>[]> => {
+  const data = await prisma.assetAuthor.findMany({
+    orderBy: {
+      lastName: "asc",
+    },
+  });
+
+  return data.map((item) => ({ value: item.id, label: `${item.lastName} ${item.firstName}` }));
 };

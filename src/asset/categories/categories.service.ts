@@ -6,6 +6,7 @@ import httpErrors from "../../common/utils/http-error.util";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
 import { ListAssetCategoryRO } from "./categories.models";
 import { listAssetCategoryMapper } from "./categories.mapper";
+import { Option } from "../../common/types/option";
 
 export const createAssetCategory = async (dto: CreateAssetCategoryDto): Promise<AssetCategory> => {
   const categoryExists = await prisma.assetCategory.findFirst({
@@ -43,4 +44,14 @@ export const getAssetCategories = async (
     total,
     items: data.map((cat) => listAssetCategoryMapper(cat)),
   };
+};
+
+export const getAllAssetCategories = async (): Promise<Option<string>[]> => {
+  const data = await prisma.assetCategory.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return data.map((item) => ({ value: item.id, label: item.name }));
 };
