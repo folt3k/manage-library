@@ -12,6 +12,7 @@ pm2 delete api
 rm -rf node_modules
 npm install
 rm -rf ./dist
+npx prisma generate
 npm run build
 pm2 start ./dist/src/index.js --name api
 pm2 list all
