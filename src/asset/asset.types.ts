@@ -2,7 +2,7 @@ import { AssetType } from "@prisma/client";
 
 export interface CreateAssetDto {
   title: string;
-  imageUrl?: string;
+  imageId: string;
   publisher: string;
   publicationYear: number;
   description?: string;
@@ -11,4 +11,9 @@ export interface CreateAssetDto {
   type: AssetType;
   authorId: string;
   categoryIds: string[];
+}
+
+export interface CreateAssetImageDto {
+  fileName: string;
+  path: string;
 }

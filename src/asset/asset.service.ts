@@ -1,10 +1,15 @@
 import { Asset } from "@prisma/client";
 
 import prisma from "../../prisma/client";
-import { CreateAssetDto } from "./asset.types";
+import { CreateAssetDto, CreateAssetImageDto } from "./asset.types";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
+import { baseAssetMapper } from "./asset.mapper";
 
 export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
+  await prisma.assetAuthor.findFirstOrThrow({ where: { id: dto.authorId } });
+
+  await prisma.assetImage.findFirstOrThrow({ where: { id: dto.imageId } });
+
   const asset = await prisma.asset.create({
     data: {
       ...dto,
@@ -17,6 +22,14 @@ export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
   return asset;
 };
 
+export const saveAssetImage = async (dto: CreateAssetImageDto): Promise<{ id: string }> => {
+  const image = await prisma.assetImage.create({
+    data: dto,
+  });
+
+  return { id: image.id };
+};
+
 export const getAssets = async (params: PaginationParams): Promise<ListWithPagination<Asset>> => {
   const page = params.page;
   const perPage = params.perPage;
@@ -27,7 +40,7 @@ export const getAssets = async (params: PaginationParams): Promise<ListWithPagin
     },
     skip: (page - 1) * perPage,
     take: perPage,
-    include: { categories: true, author: true },
+    include: { categories: true, author: true, image: true },
   });
   const total = await prisma.asset.count();
 
@@ -35,6 +48,6 @@ export const getAssets = async (params: PaginationParams): Promise<ListWithPagin
     page,
     perPage,
     total,
-    items: data,
+    items: data.map((item) => baseAssetMapper(item)),
   };
 };

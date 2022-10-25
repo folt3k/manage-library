@@ -6,11 +6,12 @@ import HttpException from "./common/models/http";
 import routes from "./routes";
 import httpErrors from "./common/utils/http-error.util";
 
-const port = 8000;
+const port = process.env.PORT;
 const app: Express = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/uploads/", express.static("uploads"));
 app.use(routes);
 
 app.use(() => {

@@ -27,7 +27,8 @@ model User {
 model Asset {
   id               String         @id @default(auto()) @map("_id") @db.ObjectId
   title            String
-  imageUrl         String         @default("http://example.image.png")
+  image            AssetImage     @relation(fields: [imageId], references: [id])
+  imageId          String         @db.ObjectId
   author           AssetAuthor    @relation(fields: [authorId], references: [id])
   authorId         String         @db.ObjectId
   publisher        String
@@ -54,6 +55,13 @@ model AssetAuthor {
   firstName String
   lastName  String
   assets    Asset[]
+}
+
+model AssetImage {
+    id        String  @id @default(auto()) @map("_id") @db.ObjectId
+    fileName  String @unique
+    path      String @unique
+    assets    Asset[]
 }
 
 // enums
