@@ -5,13 +5,13 @@ import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
 import httpErrors from "../common/utils/http-error.util";
-import { generateRandomPassword } from "../common/utils/random-password-generator.util";
+import { generateRandomString } from "../common/utils/random-string-generator.util";
 import { baseUserMapper, userMeMapper } from "./user.mapper";
 import { ChangePasswordDto, CreateUserDto, GetMeResponse } from "./user.types";
 import { generateHashPassword } from "./user.utils";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
-  const randomPassword = generateRandomPassword();
+  const randomPassword = generateRandomString();
   const hashPassword = await generateHashPassword(randomPassword);
 
   const data = {
