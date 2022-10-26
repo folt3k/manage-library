@@ -1,11 +1,15 @@
 import { AssetCategory } from "@prisma/client";
 
-import { ListAssetCategoryRO } from "./categories.models";
+import { BaseAssetCategoryRO, ListAssetCategoryRO } from "./categories.models";
+
+export const baseAssetCategoryMapper = (cat: AssetCategory): BaseAssetCategoryRO => ({
+  id: cat.id,
+  name: cat.name,
+});
 
 export const listAssetCategoryMapper = (
   cat: AssetCategory & { _count: { assets: number } }
 ): ListAssetCategoryRO => ({
-  id: cat.id,
-  name: cat.name,
+  ...baseAssetCategoryMapper(cat),
   assetsCount: cat._count.assets,
 });

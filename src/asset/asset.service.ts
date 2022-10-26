@@ -4,6 +4,7 @@ import prisma from "../../prisma/client";
 import { CreateAssetDto, CreateAssetImageDto } from "./asset.types";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
 import { baseAssetMapper } from "./asset.mapper";
+import { AssetRO } from "./asset.models";
 
 export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
   await prisma.assetAuthor.findFirstOrThrow({ where: { id: dto.authorId } });
@@ -30,7 +31,7 @@ export const saveAssetImage = async (dto: CreateAssetImageDto): Promise<{ id: st
   return { id: image.id };
 };
 
-export const getAssets = async (params: PaginationParams): Promise<ListWithPagination<Asset>> => {
+export const getAssets = async (params: PaginationParams): Promise<ListWithPagination<AssetRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
