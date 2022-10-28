@@ -2,7 +2,7 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
-import { createAsset, getAssets, saveAssetImage } from "./asset.service";
+import { createAsset, getAsset, getAssets, saveAssetImage } from "./asset.service";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
 import uploadImage from "../common/utils/multer.util";
 import { CreateAssetImageDto } from "./asset.types";
@@ -53,5 +53,15 @@ router.post(
     }
   }
 );
+
+router.get("/assets/:id", auth(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const asset = await getAsset(req.params.id);
+
+    res.json(asset);
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default router;

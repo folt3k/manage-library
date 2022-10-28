@@ -6,7 +6,7 @@ import { ListWithPagination, PaginationParams } from "../common/models/paginatio
 import { baseAssetMapper } from "./asset.mapper";
 import { AssetRO } from "./asset.models";
 
-export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
+export const createAsset = async (dto: CreateAssetDto): Promise<{ id: string }> => {
   await prisma.assetAuthor.findFirstOrThrow({ where: { id: dto.authorId } });
 
   await prisma.assetImage.findFirstOrThrow({ where: { id: dto.imageId } });
@@ -20,7 +20,7 @@ export const createAsset = async (dto: CreateAssetDto): Promise<Asset> => {
     },
   });
 
-  return asset;
+  return { id: asset.id };
 };
 
 export const saveAssetImage = async (dto: CreateAssetImageDto): Promise<{ id: string }> => {
@@ -51,4 +51,13 @@ export const getAssets = async (params: PaginationParams): Promise<ListWithPagin
     total,
     items: data.map((item) => baseAssetMapper(item)),
   };
+};
+
+export const getAsset = async (id: string): Promise<AssetRO> => {
+  const asset = await prisma.asset.findFirstOrThrow({
+    where: { id },
+    include: { categories: true, author: true, image: true },
+  });
+
+  return baseAssetMapper(asset);
 };
