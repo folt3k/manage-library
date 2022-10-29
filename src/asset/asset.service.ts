@@ -1,10 +1,10 @@
-import { Asset } from "@prisma/client";
-
 import prisma from "../../prisma/client";
 import { CreateAssetDto, CreateAssetImageDto } from "./asset.types";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
 import { baseAssetMapper } from "./asset.mapper";
-import { AssetRO } from "./asset.models";
+import { BaseAssetRO } from "./asset.models";
+import { getAssetCopies } from "./copies/copies.service";
+import { BaseAssetCopyRO } from "./copies/copies.models";
 
 export const createAsset = async (dto: CreateAssetDto): Promise<{ id: string }> => {
   await prisma.assetAuthor.findFirstOrThrow({ where: { id: dto.authorId } });
@@ -31,7 +31,9 @@ export const saveAssetImage = async (dto: CreateAssetImageDto): Promise<{ id: st
   return { id: image.id };
 };
 
-export const getAssets = async (params: PaginationParams): Promise<ListWithPagination<AssetRO>> => {
+export const getAssets = async (
+  params: PaginationParams
+): Promise<ListWithPagination<BaseAssetRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
@@ -53,11 +55,18 @@ export const getAssets = async (params: PaginationParams): Promise<ListWithPagin
   };
 };
 
-export const getAsset = async (id: string): Promise<AssetRO> => {
+export const getAsset = async (
+  id: string
+): Promise<BaseAssetRO & { copies: BaseAssetCopyRO[] }> => {
   const asset = await prisma.asset.findFirstOrThrow({
     where: { id },
     include: { categories: true, author: true, image: true },
   });
 
-  return baseAssetMapper(asset);
+  const assetCopies = await getAssetCopies(asset.id);
+
+  return {
+    ...baseAssetMapper(asset),
+    copies: assetCopies,
+  };
 };

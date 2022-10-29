@@ -1,7 +1,8 @@
 import { AssetAuthor } from "@prisma/client";
+
 import { BaseAssetCategoryRO } from "./categories/categories.models";
 
-export interface AssetRO {
+export interface BaseAssetRO {
   id: string;
   title: string;
   publisher: string;

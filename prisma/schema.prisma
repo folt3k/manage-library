@@ -39,6 +39,7 @@ model Asset {
   lubimyczytacLink String?
   categories         AssetCategory[] @relation(fields: [categoryIds], references: [id])
   categoryIds       String[]       @db.ObjectId
+  copies            AssetCopy[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -62,6 +63,16 @@ model AssetImage {
     fileName  String @unique
     path      String @unique
     assets    Asset[]
+}
+
+model AssetCopy {
+  id                   String @id @default(auto()) @map("_id") @db.ObjectId
+  inventoryNumber      String @unique
+  asset                Asset   @relation(fields: [assetId], references: [id])
+  assetId              String @db.ObjectId
+  isFreeAccess          Boolean
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 // enums
