@@ -11,37 +11,38 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  email       String   @unique
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  email       String        @unique
   password    String
   firstName   String
   lastName    String
-  pesel       Int      @unique
+  pesel       Int           @unique
   phoneNumber Int
   role        UserRole
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isActive    Boolean  @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isActive    Boolean       @default(true)
+  rentals     AssetRental[]
 }
 
 model Asset {
-  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
   title            String
-  image            AssetImage     @relation(fields: [imageId], references: [id])
-  imageId          String         @db.ObjectId
-  author           AssetAuthor    @relation(fields: [authorId], references: [id])
-  authorId         String         @db.ObjectId
+  image            AssetImage      @relation(fields: [imageId], references: [id])
+  imageId          String          @db.ObjectId
+  author           AssetAuthor     @relation(fields: [authorId], references: [id])
+  authorId         String          @db.ObjectId
   publisher        String
   publicationYear  Int
   description      String?
-  isbn             String         @unique
+  isbn             String          @unique
   type             AssetType
   lubimyczytacLink String?
-  categories         AssetCategory[] @relation(fields: [categoryIds], references: [id])
-  categoryIds       String[]       @db.ObjectId
-  copies            AssetCopy[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  categories       AssetCategory[] @relation(fields: [categoryIds], references: [id])
+  categoryIds      String[]        @db.ObjectId
+  copies           AssetCopy[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
 model AssetCategory {
@@ -59,20 +60,32 @@ model AssetAuthor {
 }
 
 model AssetImage {
-    id        String  @id @default(auto()) @map("_id") @db.ObjectId
-    fileName  String @unique
-    path      String @unique
-    assets    Asset[]
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  fileName String  @unique
+  path     String  @unique
+  assets   Asset[]
 }
 
 model AssetCopy {
-  id                   String @id @default(auto()) @map("_id") @db.ObjectId
-  inventoryNumber      String @unique
-  asset                Asset   @relation(fields: [assetId], references: [id])
-  assetId              String @db.ObjectId
-  isFreeAccess          Boolean
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  inventoryNumber String        @unique
+  asset           Asset         @relation(fields: [assetId], references: [id])
+  assetId         String        @db.ObjectId
+  isFreeAccess    Boolean
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  rentals         AssetRental[]
+}
+
+model AssetRental {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  copy       AssetCopy @relation(fields: [copyId], references: [id])
+  copyId     String    @db.ObjectId
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String    @db.ObjectId
+  createdAt  DateTime  @default(now())
+  expiredAt  DateTime
+  isReturned Boolean   @default(false)
 }
 
 // enums

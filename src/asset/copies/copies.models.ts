@@ -5,4 +5,5 @@ export interface BaseAssetCopyRO {
   inventoryNumber: string;
   isFreeAccess: boolean;
   status: AssetCopyStatus;
+  canRent: boolean;
 }

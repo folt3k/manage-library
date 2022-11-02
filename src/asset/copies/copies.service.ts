@@ -1,4 +1,4 @@
-import { AssetCopy } from "@prisma/client";
+import { AssetCopy, AssetRental } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
 import { AssetCopyStatus, CreateAssetCopyDto } from "./copies.types";
@@ -19,8 +19,9 @@ export const createAssetCopy = async (
     },
   });
   const assetCopyStatus = getAssetCopyStatus(assetCopy);
+  const canRent = assetCopy.isFreeAccess ? false : true;
 
-  return baseAssetCopyMapper({ ...assetCopy, status: assetCopyStatus });
+  return baseAssetCopyMapper({ ...assetCopy, status: assetCopyStatus, canRent });
 };
 
 export const getAssetCopies = async (assetId: string): Promise<BaseAssetCopyRO[]> => {
@@ -28,14 +29,53 @@ export const getAssetCopies = async (assetId: string): Promise<BaseAssetCopyRO[]
     where: {
       assetId,
     },
+    include: {
+      rentals: {
+        where: {
+          isReturned: false,
+        },
+      },
+    },
     orderBy: {
       createdAt: "asc",
     },
   });
 
-  return data.map((item) => baseAssetCopyMapper({ ...item, status: getAssetCopyStatus(item) }));
+  return data.map((item) =>
+    baseAssetCopyMapper({
+      ...item,
+      status: getAssetCopyStatus(item),
+      canRent: canRent(item),
+    })
+  );
+};
+
+export const getAssetCopy = async (copyId: string): Promise<BaseAssetCopyRO> => {
+  const data = await prisma.assetCopy.findFirstOrThrow({
+    where: {
+      id: copyId,
+    },
+  });
+
+  return baseAssetCopyMapper({
+    ...data,
+    status: getAssetCopyStatus(data),
+    canRent: data.isFreeAccess ? false : true,
+  });
 };
 
 const getAssetCopyStatus = (copy: AssetCopy): AssetCopyStatus => {
   return AssetCopyStatus.ACTIVE;
+};
+
+const canRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
+  if (copy.isFreeAccess) {
+    return false;
+  }
+
+  if (copy.rentals.find((rental) => !rental.isReturned)) {
+    return false;
+  }
+
+  return true;
 };
