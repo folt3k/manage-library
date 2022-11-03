@@ -1,5 +1,3 @@
-import { AssetRental } from "@prisma/client";
-
 import prisma from "../../../prisma/client";
 import { CurrentUser } from "../../auth/auth.models";
 import { MAX_RENTAL_PERION_IN_MONTHS } from "../../common/constans";
@@ -13,25 +11,10 @@ export const createAssetRental = async (
 ): Promise<BaseAssetCopyRO> => {
   const currentDate = new Date();
 
-  const assetCopy = await prisma.assetCopy.findFirstOrThrow({
-    where: {
-      id: copyId,
-    },
-  });
+  const assetCopy = await getAssetCopy(copyId, currentUser);
 
-  if (assetCopy.isFreeAccess) {
-    throw httpErrors.badRequest(
-      "Nie można wypożyczyć tego egzemplarza, ponieważ jest wolny dostęp do niego"
-    );
-  }
-
-  const isNotReturnedRentalExists = await prisma.assetRental.findFirst({
-    where: { isReturned: false, copyId: copyId },
-  });
-
-  if (isNotReturnedRentalExists) {
-    // TODO: Tutaj tez ma byc sprawdzanie czy nie ma rezerwacji lub czy jesli sa, to pierwsza jest usera
-    throw httpErrors.badRequest("Ten egzamplarz nie został jeszcze zwrócony");
+  if (!assetCopy.canRent) {
+    throw httpErrors.badRequest("Nie można wypożyczyć tego egzamplarza");
   }
 
   await prisma.assetRental.create({

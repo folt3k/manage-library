@@ -11,39 +11,10 @@ export const createAssetReservation = async (
 ): Promise<BaseAssetCopyRO> => {
   const currentDate = new Date();
 
-  const assetCopy = await prisma.assetCopy.findFirstOrThrow({
-    where: {
-      id: copyId,
-    },
-  });
+  const assetCopy = await getAssetCopy(copyId, currentUser);
 
-  if (assetCopy.isFreeAccess) {
-    throw httpErrors.badRequest(
-      "Nie można zarezerwować tego egzemplarza, ponieważ jest wolny dostęp do niego"
-    );
-  }
-
-  const isNotReturnedRentalExists = await prisma.assetRental.findFirst({
-    where: { copyId: copyId, isReturned: false },
-  });
-
-  if (!isNotReturnedRentalExists) {
-    throw httpErrors.badRequest(
-      "Nie można zarezerwować tego egzemplarza, ponieważ można go wypożyczyć"
-    );
-  }
-
-  const isActiveReservationForCurrentUserExists = await prisma.assetReservation.findFirst({
-    where: {
-      userId: currentUser.id,
-      expiredAt: {
-        gte: new Date(),
-      },
-    },
-  });
-
-  if (isActiveReservationForCurrentUserExists) {
-    throw httpErrors.badRequest("Istnieje już aktywna rezerwacja dla tego użytkownika");
+  if (!assetCopy.canReserve) {
+    throw httpErrors.badRequest("Nie można zarezerwować tego egzemplarza");
   }
 
   await prisma.assetReservation.create({
