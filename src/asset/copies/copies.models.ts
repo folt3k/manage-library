@@ -4,6 +4,8 @@ export interface BaseAssetCopyRO {
   isFreeAccess: boolean;
   canRent: boolean;
   canReserve: boolean;
+  isRent: boolean;
+  isReserved: boolean;
 }
 
 export interface ListAssetCopyRO extends BaseAssetCopyRO {

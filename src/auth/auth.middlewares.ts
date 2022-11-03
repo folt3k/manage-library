@@ -37,6 +37,7 @@ export const auth =
       if (user) {
         req.user = {
           id: user.id,
+          role: user.role,
         };
 
         if (options.roles?.length && !options.roles.includes(user.role)) {

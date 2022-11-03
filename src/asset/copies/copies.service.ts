@@ -1,4 +1,4 @@
-import { AssetCopy, AssetRental, AssetReservation } from "@prisma/client";
+import { AssetCopy, AssetRental, AssetReservation, UserRole } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
 import { CreateAssetCopyDto } from "./copies.types";
@@ -22,7 +22,13 @@ export const createAssetCopy = async (
   const canRent = assetCopy.isFreeAccess ? false : true;
   const canReserve = false;
 
-  return baseAssetCopyMapper({ ...assetCopy, canRent, canReserve });
+  return baseAssetCopyMapper({
+    ...assetCopy,
+    canRent,
+    canReserve,
+    isRent: false,
+    isReserved: false,
+  });
 };
 
 export const getAssetCopies = async (
@@ -62,6 +68,8 @@ export const getAssetCopies = async (
       canRent: canRent(item, currentUser),
       canReserve: canReserve(item, currentUser),
       activeReservationsCount: item.reservations.length,
+      isRent: isRent(item),
+      isReserved: isReserved(item),
     })
   );
 };
@@ -98,6 +106,8 @@ export const getAssetCopy = async (
     ...data,
     canRent: canRent(data, currentUser),
     canReserve: canReserve(data, currentUser),
+    isRent: isRent(data),
+    isReserved: isReserved(data),
   });
 };
 
@@ -109,7 +119,9 @@ const canRent = (
     return false;
   }
 
-  console.log(copy.reservations);
+  if (currentUser.role === UserRole.LIBRARIAN) {
+    return false;
+  }
 
   if (copy.rentals.length) {
     return false;
@@ -132,6 +144,10 @@ const canReserve = (
     return false;
   }
 
+  if (currentUser.role === UserRole.LIBRARIAN) {
+    return false;
+  }
+
   if (copy.reservations.length) {
     if (copy.reservations.find((r) => r.userId === currentUser.id)) {
       return false;
@@ -143,4 +159,12 @@ const canReserve = (
   }
 
   return true;
+};
+
+const isRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
+  return !!copy.rentals.length;
+};
+
+const isReserved = (copy: AssetCopy & { reservations: AssetReservation[] }): boolean => {
+  return !!copy.reservations.length;
 };
