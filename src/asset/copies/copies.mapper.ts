@@ -1,13 +1,19 @@
 import { AssetCopy } from "@prisma/client";
-import { BaseAssetCopyRO } from "./copies.models";
-import { AssetCopyStatus } from "./copies.types";
+import { BaseAssetCopyRO, ListAssetCopyRO } from "./copies.models";
 
 export const baseAssetCopyMapper = (
-  copy: AssetCopy & { status: AssetCopyStatus; canRent: boolean }
+  copy: AssetCopy & { canRent: boolean; canReserve: boolean }
 ): BaseAssetCopyRO => ({
   id: copy.id,
   inventoryNumber: copy.inventoryNumber,
   isFreeAccess: copy.isFreeAccess,
-  status: copy.status,
   canRent: copy.canRent,
+  canReserve: copy.canReserve,
+});
+
+export const listAssetCopyMapper = (
+  copy: AssetCopy & { canRent: boolean; canReserve: boolean; activeReservationsCount: number }
+): ListAssetCopyRO => ({
+  ...baseAssetCopyMapper(copy),
+  activeReservationsCount: copy.activeReservationsCount,
 });

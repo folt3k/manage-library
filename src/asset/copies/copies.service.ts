@@ -1,9 +1,10 @@
-import { AssetCopy, AssetRental } from "@prisma/client";
+import { AssetCopy, AssetRental, AssetReservation } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
-import { AssetCopyStatus, CreateAssetCopyDto } from "./copies.types";
-import { baseAssetCopyMapper } from "./copies.mapper";
-import { BaseAssetCopyRO } from "./copies.models";
+import { CreateAssetCopyDto } from "./copies.types";
+import { baseAssetCopyMapper, listAssetCopyMapper } from "./copies.mapper";
+import { BaseAssetCopyRO, ListAssetCopyRO } from "./copies.models";
+import { CurrentUser } from "../../auth/auth.models";
 
 export const createAssetCopy = async (
   assetId: string,
@@ -18,13 +19,16 @@ export const createAssetCopy = async (
       inventoryNumber: `F1 ${assetCopiesCount + 1}`,
     },
   });
-  const assetCopyStatus = getAssetCopyStatus(assetCopy);
   const canRent = assetCopy.isFreeAccess ? false : true;
+  const canReserve = false;
 
-  return baseAssetCopyMapper({ ...assetCopy, status: assetCopyStatus, canRent });
+  return baseAssetCopyMapper({ ...assetCopy, canRent, canReserve });
 };
 
-export const getAssetCopies = async (assetId: string): Promise<BaseAssetCopyRO[]> => {
+export const getAssetCopies = async (
+  assetId: string,
+  currentUser: CurrentUser
+): Promise<ListAssetCopyRO[]> => {
   const data = await prisma.assetCopy.findMany({
     where: {
       assetId,
@@ -35,45 +39,106 @@ export const getAssetCopies = async (assetId: string): Promise<BaseAssetCopyRO[]
           isReturned: false,
         },
       },
+      reservations: {
+        where: {
+          wasRent: false,
+          expiredAt: {
+            gte: new Date(),
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
     orderBy: {
       createdAt: "asc",
     },
   });
-
+  ``;
   return data.map((item) =>
-    baseAssetCopyMapper({
+    listAssetCopyMapper({
       ...item,
-      status: getAssetCopyStatus(item),
-      canRent: canRent(item),
+      canRent: canRent(item, currentUser),
+      canReserve: canReserve(item, currentUser),
+      activeReservationsCount: item.reservations.length,
     })
   );
 };
 
-export const getAssetCopy = async (copyId: string): Promise<BaseAssetCopyRO> => {
+export const getAssetCopy = async (
+  copyId: string,
+  currentUser: CurrentUser
+): Promise<BaseAssetCopyRO> => {
   const data = await prisma.assetCopy.findFirstOrThrow({
     where: {
       id: copyId,
+    },
+    include: {
+      rentals: {
+        where: {
+          isReturned: false,
+        },
+      },
+      reservations: {
+        where: {
+          wasRent: false,
+          expiredAt: {
+            gte: new Date(),
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 
   return baseAssetCopyMapper({
     ...data,
-    status: getAssetCopyStatus(data),
-    canRent: data.isFreeAccess ? false : true,
+    canRent: canRent(data, currentUser),
+    canReserve: canReserve(data, currentUser),
   });
 };
 
-const getAssetCopyStatus = (copy: AssetCopy): AssetCopyStatus => {
-  return AssetCopyStatus.ACTIVE;
-};
-
-const canRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
+const canRent = (
+  copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
+  currentUser: CurrentUser
+): boolean => {
   if (copy.isFreeAccess) {
     return false;
   }
 
-  if (copy.rentals.find((rental) => !rental.isReturned)) {
+  console.log(copy.reservations);
+
+  if (copy.rentals.length) {
+    return false;
+  }
+
+  if (copy.reservations.length) {
+    if (copy.reservations[0].userId !== currentUser.id) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const canReserve = (
+  copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
+  currentUser: CurrentUser
+): boolean => {
+  if (copy.isFreeAccess) {
+    return false;
+  }
+
+  if (copy.reservations.length) {
+    if (copy.reservations.find((r) => r.userId === currentUser.id)) {
+      return false;
+    }
+  }
+
+  if (!copy.rentals.length) {
     return false;
   }
 

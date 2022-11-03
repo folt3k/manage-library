@@ -26,7 +26,7 @@ export const createAssetRental = async (
   }
 
   const isNotReturnedRentalExists = await prisma.assetRental.findFirst({
-    where: { isReturned: false },
+    where: { isReturned: false, copyId: copyId },
   });
 
   if (isNotReturnedRentalExists) {
@@ -42,7 +42,7 @@ export const createAssetRental = async (
     },
   });
 
-  const updatedAssetCopy = await getAssetCopy(copyId);
+  const updatedAssetCopy = await getAssetCopy(copyId, currentUser);
 
   return updatedAssetCopy;
 };

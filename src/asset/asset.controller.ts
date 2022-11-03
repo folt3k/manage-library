@@ -56,7 +56,7 @@ router.post(
 
 router.get("/assets/:id", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const asset = await getAsset(req.params.id);
+    const asset = await getAsset(req.params.id, req.user);
 
     res.json(asset);
   } catch (err) {
