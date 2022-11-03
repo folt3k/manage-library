@@ -1,3 +1,5 @@
+import { omit } from "lodash";
+
 import prisma from "../../prisma/client";
 import { CreateAssetDto, CreateAssetImageDto } from "./asset.types";
 import { ListWithPagination, PaginationParams } from "../common/models/pagination";
@@ -7,13 +9,19 @@ import { getAssetCopies } from "./copies/copies.service";
 import { BaseAssetCopyRO } from "./copies/copies.models";
 
 export const createAsset = async (dto: CreateAssetDto): Promise<{ id: string }> => {
-  await prisma.assetAuthor.findFirstOrThrow({ where: { id: dto.authorId } });
-
-  await prisma.assetImage.findFirstOrThrow({ where: { id: dto.imageId } });
-
   const asset = await prisma.asset.create({
     data: {
-      ...dto,
+      ...omit(dto, ["imageId", "authorId"]),
+      author: {
+        connect: {
+          id: dto.authorId,
+        },
+      },
+      image: {
+        connect: {
+          id: dto.imageId,
+        },
+      },
       categories: {
         connect: dto.categoryIds.map((category) => ({ id: category })),
       },
