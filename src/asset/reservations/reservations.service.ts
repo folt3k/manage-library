@@ -31,3 +31,30 @@ export const createAssetReservation = async (
 
   return updatedAssetCopy;
 };
+
+export const markAssetReservationAsRent = async (
+  copyId: string,
+  user: CurrentUser
+): Promise<void> => {
+  const reservation = await prisma.assetReservation.findFirst({
+    where: {
+      copyId,
+      userId: user.id,
+      wasRent: false,
+      expiredAt: {
+        gte: new Date(),
+      },
+    },
+  });
+
+  if (reservation) {
+    await prisma.assetReservation.update({
+      where: {
+        id: reservation.id,
+      },
+      data: {
+        wasRent: true,
+      },
+    });
+  }
+};

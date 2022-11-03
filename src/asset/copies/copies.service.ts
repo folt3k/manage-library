@@ -148,6 +148,10 @@ const canReserve = (
     return false;
   }
 
+  if (copy.rentals.find((r) => r.userId === currentUser.id)) {
+    return false;
+  }
+
   if (copy.reservations.length) {
     if (copy.reservations.find((r) => r.userId === currentUser.id)) {
       return false;
