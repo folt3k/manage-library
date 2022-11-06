@@ -9,8 +9,6 @@ export const createAssetReservation = async (
   copyId: string,
   currentUser: CurrentUser
 ): Promise<BaseAssetCopyRO> => {
-  const currentDate = new Date();
-
   const assetCopy = await getAssetCopy(copyId, currentUser);
 
   if (!assetCopy.canReserve) {
@@ -21,9 +19,6 @@ export const createAssetReservation = async (
     data: {
       copyId,
       userId: currentUser.id,
-      expiredAt: new Date(
-        currentDate.setDate(currentDate.getDate() + MAX_RESERVATION_PERION_IN_DAYS)
-      ),
     },
   });
 
@@ -32,29 +27,75 @@ export const createAssetReservation = async (
   return updatedAssetCopy;
 };
 
-export const markAssetReservationAsRent = async (
+export const markAssetReservationAsExpired = async (
   copyId: string,
   user: CurrentUser
 ): Promise<void> => {
-  const reservation = await prisma.assetReservation.findFirst({
+  const reservations = await prisma.assetReservation.findMany({
     where: {
       copyId,
       userId: user.id,
-      wasRent: false,
-      expiredAt: {
-        gte: new Date(),
-      },
+      isExpired: false,
     },
+    orderBy: {
+      createdAt: "asc",
+    },
+    take: 1,
   });
 
-  if (reservation) {
+  if (reservations.length) {
     await prisma.assetReservation.update({
       where: {
-        id: reservation.id,
+        id: reservations[0].id,
       },
       data: {
-        wasRent: true,
+        isExpired: true,
       },
     });
+  }
+};
+
+export const activateNextAssetReservation = async (
+  copyId: string,
+  user: CurrentUser
+): Promise<void> => {
+  const reservations = await prisma.assetReservation.findMany({
+    where: {
+      copyId,
+      userId: user.id,
+      isExpired: false,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+    take: 2,
+  });
+
+  if (reservations.length) {
+    const [currentReservation, nextReservation] = reservations;
+    await prisma.assetReservation.update({
+      where: {
+        id: currentReservation.id,
+      },
+      data: {
+        isExpired: true,
+      },
+    });
+
+    if (nextReservation) {
+      const currentDate = new Date();
+      currentDate.setHours(23, 59, 59, 999);
+
+      await prisma.assetReservation.update({
+        where: {
+          id: nextReservation.id,
+        },
+        data: {
+          expiredAt: new Date(
+            currentDate.setDate(currentDate.getDate() + MAX_RESERVATION_PERION_IN_DAYS)
+          ),
+        },
+      });
+    }
   }
 };

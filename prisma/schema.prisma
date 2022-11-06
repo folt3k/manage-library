@@ -97,8 +97,8 @@ model AssetReservation {
   user      User      @relation(fields: [userId], references: [id])
   userId    String    @db.ObjectId
   createdAt DateTime  @default(now())
-  expiredAt DateTime
-  wasRent   Boolean   @default(false)
+  expiredAt DateTime?
+  isExpired Boolean   @default(false)
 }
 
 // enums

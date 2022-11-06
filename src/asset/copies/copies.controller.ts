@@ -11,7 +11,7 @@ router.post(
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const assetCopy = await createAssetCopy(req.params.assetId, req.body);
+      const assetCopy = await createAssetCopy(req.params.assetId, req.body, req.user);
 
       res.json(assetCopy);
     } catch (err) {

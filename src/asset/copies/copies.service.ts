@@ -1,14 +1,13 @@
-import { AssetCopy, AssetRental, AssetReservation, UserRole } from "@prisma/client";
-
 import prisma from "../../../prisma/client";
 import { CreateAssetCopyDto } from "./copies.types";
-import { baseAssetCopyMapper, listAssetCopyMapper } from "./copies.mapper";
-import { BaseAssetCopyRO, ListAssetCopyRO } from "./copies.models";
+import { baseAssetCopyMapper } from "./copies.mapper";
+import { BaseAssetCopyRO } from "./copies.models";
 import { CurrentUser } from "../../auth/auth.models";
 
 export const createAssetCopy = async (
   assetId: string,
-  dto: CreateAssetCopyDto
+  dto: CreateAssetCopyDto,
+  currentUser: CurrentUser
 ): Promise<BaseAssetCopyRO> => {
   const assetCopiesCount = await prisma.assetCopy.count();
 
@@ -19,22 +18,14 @@ export const createAssetCopy = async (
       inventoryNumber: `F1 ${assetCopiesCount + 1}`,
     },
   });
-  const canRent = assetCopy.isFreeAccess ? false : true;
-  const canReserve = false;
 
-  return baseAssetCopyMapper({
-    ...assetCopy,
-    canRent,
-    canReserve,
-    isRent: false,
-    isReserved: false,
-  });
+  return baseAssetCopyMapper({ ...assetCopy, rentals: [], reservations: [] }, currentUser);
 };
 
 export const getAssetCopies = async (
   assetId: string,
   currentUser: CurrentUser
-): Promise<ListAssetCopyRO[]> => {
+): Promise<BaseAssetCopyRO[]> => {
   const data = await prisma.assetCopy.findMany({
     where: {
       assetId,
@@ -44,13 +35,11 @@ export const getAssetCopies = async (
         where: {
           isReturned: false,
         },
+        take: 1,
       },
       reservations: {
         where: {
-          wasRent: false,
-          expiredAt: {
-            gte: new Date(),
-          },
+          isExpired: false,
         },
         orderBy: {
           createdAt: "asc",
@@ -62,16 +51,7 @@ export const getAssetCopies = async (
     },
   });
   ``;
-  return data.map((item) =>
-    listAssetCopyMapper({
-      ...item,
-      canRent: canRent(item, currentUser),
-      canReserve: canReserve(item, currentUser),
-      activeReservationsCount: item.reservations.length,
-      isRent: isRent(item),
-      isReserved: isReserved(item),
-    })
-  );
+  return data.map((item) => baseAssetCopyMapper(item, currentUser));
 };
 
 export const getAssetCopy = async (
@@ -87,13 +67,11 @@ export const getAssetCopy = async (
         where: {
           isReturned: false,
         },
+        take: 1,
       },
       reservations: {
         where: {
-          wasRent: false,
-          expiredAt: {
-            gte: new Date(),
-          },
+          isExpired: false,
         },
         orderBy: {
           createdAt: "asc",
@@ -102,73 +80,5 @@ export const getAssetCopy = async (
     },
   });
 
-  return baseAssetCopyMapper({
-    ...data,
-    canRent: canRent(data, currentUser),
-    canReserve: canReserve(data, currentUser),
-    isRent: isRent(data),
-    isReserved: isReserved(data),
-  });
-};
-
-const canRent = (
-  copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
-  currentUser: CurrentUser
-): boolean => {
-  if (copy.isFreeAccess) {
-    return false;
-  }
-
-  if (currentUser.role === UserRole.LIBRARIAN) {
-    return false;
-  }
-
-  if (copy.rentals.length) {
-    return false;
-  }
-
-  if (copy.reservations.length) {
-    if (copy.reservations[0].userId !== currentUser.id) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const canReserve = (
-  copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
-  currentUser: CurrentUser
-): boolean => {
-  if (copy.isFreeAccess) {
-    return false;
-  }
-
-  if (currentUser.role === UserRole.LIBRARIAN) {
-    return false;
-  }
-
-  if (copy.rentals.find((r) => r.userId === currentUser.id)) {
-    return false;
-  }
-
-  if (copy.reservations.length) {
-    if (copy.reservations.find((r) => r.userId === currentUser.id)) {
-      return false;
-    }
-  }
-
-  if (!copy.rentals.length) {
-    return false;
-  }
-
-  return true;
-};
-
-const isRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
-  return !!copy.rentals.length;
-};
-
-const isReserved = (copy: AssetCopy & { reservations: AssetReservation[] }): boolean => {
-  return !!copy.reservations.length;
+  return baseAssetCopyMapper(data, currentUser);
 };

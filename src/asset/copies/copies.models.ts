@@ -6,8 +6,6 @@ export interface BaseAssetCopyRO {
   canReserve: boolean;
   isRent: boolean;
   isReserved: boolean;
-}
-
-export interface ListAssetCopyRO extends BaseAssetCopyRO {
   activeReservationsCount: number;
+  rentExpiredAt: Date | null;
 }

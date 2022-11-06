@@ -6,8 +6,8 @@ import { ListWithPagination, PaginationParams } from "../common/models/paginatio
 import { baseAssetMapper } from "./asset.mapper";
 import { BaseAssetRO } from "./asset.models";
 import { getAssetCopies } from "./copies/copies.service";
-import { ListAssetCopyRO } from "./copies/copies.models";
 import { CurrentUser } from "../auth/auth.models";
+import { BaseAssetCopyRO } from "./copies/copies.models";
 
 export const createAsset = async (dto: CreateAssetDto): Promise<{ id: string }> => {
   const asset = await prisma.asset.create({
@@ -67,7 +67,7 @@ export const getAssets = async (
 export const getAsset = async (
   id: string,
   currentUser: CurrentUser
-): Promise<BaseAssetRO & { copies: ListAssetCopyRO[] }> => {
+): Promise<BaseAssetRO & { copies: BaseAssetCopyRO[] }> => {
   const asset = await prisma.asset.findFirstOrThrow({
     where: { id },
     include: { categories: true, author: true, image: true },
