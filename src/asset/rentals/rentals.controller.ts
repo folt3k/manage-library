@@ -2,7 +2,8 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../../auth/auth.middlewares";
-import { closeAssetRental, createAssetRental } from "./rentals.service";
+import { closeAssetRental, createAssetRental, getAssetRentals } from "./rentals.service";
+import { getPaginationParamsFromQuery } from "../../common/utils/pagination.utils";
 
 const router = Router();
 
@@ -28,6 +29,22 @@ router.post(
       const data = await closeAssetRental(req.params.rentalId, req.user);
 
       res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  "/asset-rentals",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const params = getPaginationParamsFromQuery(req.query);
+
+    try {
+      const assets = await getAssetRentals(params);
+
+      res.json(assets);
     } catch (err) {
       next(err);
     }

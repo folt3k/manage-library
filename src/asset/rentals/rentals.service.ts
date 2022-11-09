@@ -9,6 +9,9 @@ import {
   markAssetReservationAsExpired as markUserAssetReservationAsRent,
 } from "../reservations/reservations.service";
 import { BaseAssetRentalRO } from "./rentals.models";
+import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { BaseAssetRO } from "../asset.models";
+import { baseAssetMapper } from "../asset.mapper";
 
 export const createAssetRental = async (
   copyId: string,
@@ -65,4 +68,35 @@ export const closeAssetRental = async (
   const updatedAssetRental = await prisma.assetRental.findFirstOrThrow({ where: { id: rentalId } });
 
   return updatedAssetRental;
+};
+
+export const getAssetRentals = async (
+  params: PaginationParams
+): Promise<ListWithPagination<BaseAssetRentalRO>> => {
+  const page = params.page;
+  const perPage = params.perPage;
+
+  const data = await prisma.assetRental.findMany({
+    orderBy: {
+      isReturned: "asc",
+    },
+    skip: (page - 1) * perPage,
+    take: perPage,
+    include: {
+      copy: {
+        include: {
+          asset: true,
+        },
+      },
+      user: true,
+    },
+  });
+  const total = await prisma.asset.count();
+
+  return {
+    page,
+    perPage,
+    total,
+    items: data,
+  };
 };
