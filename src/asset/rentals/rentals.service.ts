@@ -8,10 +8,8 @@ import {
   activateNextAssetReservation as manageAssetReservationsOnRentalClose,
   markAssetReservationAsExpired as markUserAssetReservationAsRent,
 } from "../reservations/reservations.service";
-import { BaseAssetRentalRO } from "./rentals.models";
+import { BaseAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
-import { BaseAssetRO } from "../asset.models";
-import { baseAssetMapper } from "../asset.mapper";
 import { listAssetRental } from "./rentals.mapper";
 
 export const createAssetRental = async (
@@ -44,7 +42,7 @@ export const createAssetRental = async (
 export const closeAssetRental = async (
   rentalId: string,
   currentUser: CurrentUser
-): Promise<BaseAssetRentalRO> => {
+): Promise<ListAssetRentalRO> => {
   const rental = await prisma.assetRental.findFirstOrThrow({
     where: {
       id: rentalId,
@@ -67,9 +65,23 @@ export const closeAssetRental = async (
 
   await manageAssetReservationsOnRentalClose(rental.copyId, currentUser);
 
-  const updatedAssetRental = await prisma.assetRental.findFirstOrThrow({ where: { id: rentalId } });
+  const updatedAssetRental = await prisma.assetRental.findFirstOrThrow({
+    where: { id: rentalId },
+    include: {
+      copy: {
+        include: {
+          asset: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      },
+      user: true,
+    },
+  });
 
-  return updatedAssetRental;
+  return listAssetRental(updatedAssetRental);
 };
 
 export const getAssetRentals = async (
