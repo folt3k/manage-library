@@ -12,6 +12,7 @@ import { BaseAssetRentalRO } from "./rentals.models";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
 import { BaseAssetRO } from "../asset.models";
 import { baseAssetMapper } from "../asset.mapper";
+import { listAssetRental } from "./rentals.mapper";
 
 export const createAssetRental = async (
   copyId: string,
@@ -60,6 +61,7 @@ export const closeAssetRental = async (
     },
     data: {
       isReturned: true,
+      returnedAt: new Date(),
     },
   });
 
@@ -85,7 +87,11 @@ export const getAssetRentals = async (
     include: {
       copy: {
         include: {
-          asset: true,
+          asset: {
+            include: {
+              author: true,
+            },
+          },
         },
       },
       user: true,
@@ -97,6 +103,6 @@ export const getAssetRentals = async (
     page,
     perPage,
     total,
-    items: data,
+    items: data.map((item) => listAssetRental(item)),
   };
 };
