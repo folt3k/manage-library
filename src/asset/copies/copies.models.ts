@@ -5,7 +5,8 @@ export interface BaseAssetCopyRO {
   canRent: boolean;
   canReserve: boolean;
   isRent: boolean;
-  isReserved: boolean;
+  isRentByCurrentUser: boolean;
+  isReservedByCurrentUser: boolean;
   activeReservationsCount: number;
   rentExpiredAt: Date | null;
 }

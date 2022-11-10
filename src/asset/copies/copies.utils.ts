@@ -59,6 +59,10 @@ export const isRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean =>
   return !!copy.rentals.length;
 };
 
-export const isReserved = (copy: AssetCopy & { reservations: AssetReservation[] }): boolean => {
-  return !!copy.reservations.length;
+export const isRentByCurrentUser = (copy: AssetCopy & { rentals: AssetRental[] }, currentUser: CurrentUser): boolean => {
+    return !!copy.rentals.find(rental => rental.userId === currentUser.id);
+};
+
+export const isReservedByCurrentUser = (copy: AssetCopy & { reservations: AssetReservation[] },currentUser: CurrentUser): boolean => {
+  return !!copy.reservations.find(res => res.userId === currentUser.id);
 };

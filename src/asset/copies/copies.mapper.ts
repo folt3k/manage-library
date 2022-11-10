@@ -1,7 +1,7 @@
 import { AssetCopy, AssetRental, AssetReservation } from "@prisma/client";
 import { CurrentUser } from "../../auth/auth.models";
 import { BaseAssetCopyRO } from "./copies.models";
-import { canRent, canReserve, isRent, isReserved } from "./copies.utils";
+import { canRent, canReserve, isRent, isReservedByCurrentUser, isRentByCurrentUser } from "./copies.utils";
 
 export const baseAssetCopyMapper = (
   copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
@@ -13,7 +13,8 @@ export const baseAssetCopyMapper = (
   canRent: canRent(copy, currentUser),
   canReserve: canReserve(copy, currentUser),
   isRent: isRent(copy),
-  isReserved: isReserved(copy),
+  isRentByCurrentUser: isRentByCurrentUser(copy, currentUser),
+  isReservedByCurrentUser: isReservedByCurrentUser(copy, currentUser),
   activeReservationsCount: copy.reservations.length,
   rentExpiredAt: copy.rentals.length ? copy.rentals[0].expiredAt : null,
 });

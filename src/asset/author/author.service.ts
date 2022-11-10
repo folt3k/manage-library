@@ -21,12 +21,12 @@ export const getAssetAuthors = async (
   const data = await prisma.assetAuthor.findMany({
     orderBy: {
       assets: {
-        _count: "desc",
-      },
+        _count: "desc"
+      }
     },
     skip: (page - 1) * perPage,
     take: perPage,
-    include: { assets: true, _count: true },
+    include: { assets: true, _count: true }
   });
   const total = await prisma.assetAuthor.count();
 
@@ -34,15 +34,15 @@ export const getAssetAuthors = async (
     page,
     perPage,
     total,
-    items: data.map((author) => listAssetAuthorMapper(author)),
+    items: data.map((author) => listAssetAuthorMapper(author))
   };
 };
 
 export const getAllAssetAuthors = async (): Promise<Option<string>[]> => {
   const data = await prisma.assetAuthor.findMany({
     orderBy: {
-      lastName: "asc",
-    },
+      lastName: "asc"
+    }
   });
 
   return data.map((item) => ({ value: item.id, label: `${item.lastName} ${item.firstName}` }));
