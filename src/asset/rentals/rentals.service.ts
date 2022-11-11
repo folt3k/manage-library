@@ -109,7 +109,7 @@ export const getAssetRentals = async (
       user: true,
     },
   });
-  const total = await prisma.asset.count();
+  const total = await prisma.assetRental.count();
 
   return {
     page,
