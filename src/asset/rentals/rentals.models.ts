@@ -1,25 +1,24 @@
-import { AssetRental } from "@prisma/client";
-
-export interface BaseAssetRentalRO extends AssetRental {}
-
-export interface ListAssetRentalRO {
-  id: string;
+export interface BaseListAssetRentalRO {
+  id?: string;
   createdAt: Date;
   returnedAt: Date | null;
   expiredAt: Date | null;
   isReturned: boolean;
   copy: {
-    id: string;
+    id?: string;
     inventoryNumber: string;
   };
   asset: {
-    id: string;
+    id?: string;
     title: string;
     author: {
       firstName: string;
       lastName: string;
     };
   };
+}
+
+export interface ListAssetRentalRO extends BaseListAssetRentalRO {
   user: {
     id: string;
     firstName: string;

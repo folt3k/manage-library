@@ -8,9 +8,9 @@ import {
   activateNextAssetReservation as manageAssetReservationsOnRentalClose,
   markAssetReservationAsExpired as markUserAssetReservationAsRent,
 } from "../reservations/reservations.service";
-import { BaseAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
+import { BaseListAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
-import { listAssetRental } from "./rentals.mapper";
+import { baseListAssetRental, listAssetRental } from "./rentals.mapper";
 
 export const createAssetRental = async (
   copyId: string,
@@ -34,9 +34,7 @@ export const createAssetRental = async (
 
   await markUserAssetReservationAsRent(copyId, currentUser);
 
-  const updatedAssetCopy = await getAssetCopy(copyId, currentUser);
-
-  return updatedAssetCopy;
+  return await getAssetCopy(copyId, currentUser);
 };
 
 export const closeAssetRental = async (
@@ -86,7 +84,7 @@ export const closeAssetRental = async (
 
 export const getAssetRentals = async (
   params: PaginationParams
-): Promise<ListWithPagination<BaseAssetRentalRO>> => {
+): Promise<ListWithPagination<ListAssetRentalRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
@@ -116,5 +114,44 @@ export const getAssetRentals = async (
     perPage,
     total,
     items: data.map((item) => listAssetRental(item)),
+  };
+};
+
+export const getAssetRentalsByUserId = async (
+  userId: string,
+  params: PaginationParams
+): Promise<ListWithPagination<BaseListAssetRentalRO>> => {
+  const page = params.page;
+  const perPage = params.perPage;
+
+  const data = await prisma.assetRental.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      isReturned: "asc",
+    },
+    skip: (page - 1) * perPage,
+    take: perPage,
+    include: {
+      copy: {
+        include: {
+          asset: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      },
+      user: true,
+    },
+  });
+  const total = await prisma.assetRental.count({ where: { userId } });
+
+  return {
+    page,
+    perPage,
+    total,
+    items: data.map((item) => baseListAssetRental(item)),
   };
 };
