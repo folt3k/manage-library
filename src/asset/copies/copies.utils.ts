@@ -1,7 +1,7 @@
 import { AssetCopy, AssetRental, AssetReservation, UserRole } from "@prisma/client";
 import { CurrentUser } from "../../auth/auth.models";
 
-export const canRent = (
+export const canRentCopy = (
   copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
   currentUser: CurrentUser
 ): boolean => {
@@ -26,7 +26,7 @@ export const canRent = (
   return true;
 };
 
-export const canReserve = (
+export const canReserveCopy = (
   copy: AssetCopy & { rentals: AssetRental[]; reservations: AssetReservation[] },
   currentUser: CurrentUser
 ): boolean => {
@@ -55,14 +55,13 @@ export const canReserve = (
   return true;
 };
 
-export const isRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
+export const isCopyRent = (copy: AssetCopy & { rentals: AssetRental[] }): boolean => {
   return !!copy.rentals.length;
 };
 
-export const isRentByCurrentUser = (copy: AssetCopy & { rentals: AssetRental[] }, currentUser: CurrentUser): boolean => {
-    return !!copy.rentals.find(rental => rental.userId === currentUser.id);
-};
-
-export const isReservedByCurrentUser = (copy: AssetCopy & { reservations: AssetReservation[] },currentUser: CurrentUser): boolean => {
-  return !!copy.reservations.find(res => res.userId === currentUser.id);
+export const isCopyRentByCurrentUser = (
+  copy: AssetCopy & { rentals: AssetRental[] },
+  currentUser: CurrentUser
+): boolean => {
+  return !!copy.rentals.find((rental) => rental.userId === currentUser.id);
 };

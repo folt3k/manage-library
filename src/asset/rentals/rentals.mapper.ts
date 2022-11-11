@@ -4,7 +4,6 @@ import { BaseListAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
 
 export const baseListAssetRental = (
   assetRental: AssetRental & {
-    user: User;
     copy: AssetCopy & { asset: Asset & { author: AssetAuthor } };
   }
 ): BaseListAssetRentalRO => ({
@@ -16,6 +15,7 @@ export const baseListAssetRental = (
     inventoryNumber: assetRental.copy.inventoryNumber,
   },
   asset: {
+    id: assetRental.copy.asset.id,
     title: assetRental.copy.asset.title,
     author: {
       firstName: assetRental.copy.asset.author.firstName,

@@ -1,9 +1,13 @@
+import { AssetReservation } from "@prisma/client";
+
 import prisma from "../../../prisma/client";
 import { CurrentUser } from "../../auth/auth.models";
 import { MAX_RESERVATION_PERION_IN_DAYS } from "../../common/constans";
 import httpErrors from "../../common/utils/http-error.util";
 import { BaseAssetCopyRO } from "../copies/copies.models";
 import { getAssetCopy } from "../copies/copies.service";
+import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { listUserAssetReservation } from "./reservations.mapper";
 
 export const createAssetReservation = async (
   copyId: string,
@@ -98,4 +102,59 @@ export const activateNextAssetReservation = async (
       });
     }
   }
+};
+
+export const getAssetReservationsByUserId = async (
+  currentUser: CurrentUser,
+  params: PaginationParams
+): Promise<ListWithPagination<AssetReservation>> => {
+  const page = params.page;
+  const perPage = params.perPage;
+
+  const data = await prisma.assetReservation.findMany({
+    where: {
+      userId: currentUser.id,
+      isExpired: false,
+    },
+    orderBy: {
+      expiredAt: "desc",
+    },
+    skip: (page - 1) * perPage,
+    take: perPage,
+    include: {
+      copy: {
+        include: {
+          rentals: {
+            where: {
+              isReturned: false,
+            },
+            take: 1,
+          },
+          reservations: {
+            where: {
+              isExpired: false,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
+          asset: {
+            include: {
+              author: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const total = await prisma.assetReservation.count({
+    where: { userId: currentUser.id, isExpired: false },
+  });
+
+  return {
+    page,
+    perPage,
+    total,
+    items: data.map((item) => listUserAssetReservation(item, currentUser)),
+  };
 };

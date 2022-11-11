@@ -9,7 +9,7 @@ export interface BaseListAssetRentalRO {
     inventoryNumber: string;
   };
   asset: {
-    id?: string;
+    id: string;
     title: string;
     author: {
       firstName: string;
