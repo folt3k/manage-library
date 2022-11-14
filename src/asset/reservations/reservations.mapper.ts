@@ -22,10 +22,11 @@ export const listUserAssetReservation = (
     currentUser
   ),
   copy: {
+    id: data.copy.id,
     inventoryNumber: data.copy.inventoryNumber,
   },
   asset: {
-    id: data.copy.asset.title,
+    id: data.copy.asset.id,
     title: data.copy.asset.title,
     author: {
       firstName: data.copy.asset.author.firstName,

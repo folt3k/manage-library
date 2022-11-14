@@ -3,6 +3,7 @@ export interface ListUserAssetReservationRO {
   canRent: boolean;
   activeReservationsBefore: number | null;
   copy: {
+    id: string;
     inventoryNumber: string;
   };
   asset: {
