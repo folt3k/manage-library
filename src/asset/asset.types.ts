@@ -1,6 +1,6 @@
 import { AssetType } from "@prisma/client";
 
-export interface CreateAssetDto {
+export interface UpsertAssetDto {
   title: string;
   imageId: string;
   publisher: string;

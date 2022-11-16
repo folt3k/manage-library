@@ -2,7 +2,14 @@ import { UserRole } from "@prisma/client";
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
-import { createAsset, getAsset, getAssets, saveAssetImage } from "./asset.service";
+import {
+  createAsset,
+  getAsset,
+  getAssets,
+  removeAsset,
+  saveAssetImage,
+  updateAsset,
+} from "./asset.service";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
 import uploadImage from "../common/utils/multer.util";
 import { CreateAssetImageDto } from "./asset.types";
@@ -17,6 +24,34 @@ router.post(
       const asset = await createAsset(req.body);
 
       res.json(asset);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.put(
+  "/assets/:assetId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const asset = await updateAsset(req.params.assetId, req.body);
+
+      res.json(asset);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  "/assets/:assetId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await removeAsset(req.params.assetId);
+
+      res.sendStatus(204);
     } catch (err) {
       next(err);
     }

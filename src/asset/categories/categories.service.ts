@@ -1,4 +1,4 @@
-import { AssetCategory } from "@prisma/client";
+import {  AssetCategory } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
 import { UpsertAssetCategoryDto } from "./categories.types";
