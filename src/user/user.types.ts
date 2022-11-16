@@ -1,12 +1,17 @@
 import { User } from "@prisma/client";
 
-export interface CreateUserDto {
-  email: string;
+export interface BaseUpsertUserDto {
   firstName: string;
   lastName: string;
   pesel: number;
   phoneNumber: number;
 }
+
+export interface CreateUserDto extends BaseUpsertUserDto {
+  email: string;
+}
+
+export interface UpdateUserDto extends BaseUpsertUserDto {}
 
 export interface ChangePasswordDto {
   newPassword: string;

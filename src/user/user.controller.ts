@@ -3,7 +3,7 @@ import { NextFunction, Request, Router, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
-import { changePassword, createUser, getMe, getReaders } from "./user.service";
+import { changePassword, createUser, getMe, getReaders, updateUser } from "./user.service";
 
 const router = Router();
 
@@ -15,6 +15,20 @@ router.post(
       const { password } = await createUser(req.body);
 
       res.json({ password });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.put(
+  "/users/:userId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await updateUser(req.params.userId, req.body);
+
+      res.sendStatus(204);
     } catch (err) {
       next(err);
     }

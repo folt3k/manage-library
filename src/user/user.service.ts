@@ -1,5 +1,4 @@
 import { User, UserRole } from "@prisma/client";
-import bcrypt from "bcrypt";
 
 import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
@@ -7,7 +6,7 @@ import { ListWithPagination, PaginationParams } from "../common/models/paginatio
 import httpErrors from "../common/utils/http-error.util";
 import { generateRandomString } from "../common/utils/random-string-generator.util";
 import { baseUserMapper, userMeMapper } from "./user.mapper";
-import { ChangePasswordDto, CreateUserDto, GetMeResponse } from "./user.types";
+import { ChangePasswordDto, CreateUserDto, GetMeResponse, UpdateUserDto } from "./user.types";
 import { generateHashPassword } from "./user.utils";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
@@ -25,6 +24,12 @@ export const createUser = async (dto: CreateUserDto): Promise<{ password: string
   return {
     password: randomPassword,
   };
+};
+
+export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<void> => {
+  await prisma.user.update({ where: { id: userId }, data: dto });
+
+  return undefined;
 };
 
 export const changePassword = async (
