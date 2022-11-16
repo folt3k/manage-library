@@ -1,4 +1,4 @@
-export interface CreateAssetAuthorDto {
+export interface UpsertAssetAuthorDto {
   firstName: string;
   lastName: string;
 }

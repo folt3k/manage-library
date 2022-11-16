@@ -1,15 +1,35 @@
 import { AssetAuthor } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
-import { CreateAssetAuthorDto } from "./author.types";
+import { UpsertAssetAuthorDto } from "./author.types";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
 import { listAssetAuthorMapper } from "./authors.mapper";
 import { Option } from "../../common/types/option";
+import httpErrors from "../../common/utils/http-error.util";
 
-export const createAssetAuthor = async (dto: CreateAssetAuthorDto): Promise<AssetAuthor> => {
+export const createAssetAuthor = async (dto: UpsertAssetAuthorDto): Promise<AssetAuthor> => {
   const assetAuthor = await prisma.assetAuthor.create({ data: dto });
 
   return assetAuthor;
+};
+
+export const updateAssetAuthor = async (
+  authorId: string,
+  dto: UpsertAssetAuthorDto
+): Promise<AssetAuthor> => {
+  const assetAuthor = await prisma.assetAuthor.update({ where: { id: authorId }, data: dto });
+
+  return assetAuthor;
+};
+
+export const removeAssetAuthor = async (authorId: string): Promise<AssetAuthor> => {
+  const numberOfAssetsWithAuthor = await prisma.asset.count({ where: { authorId } });
+
+  if (numberOfAssetsWithAuthor) {
+    throw httpErrors.badRequest("Nie można usunąć autora, który jest powiązany z jakimś assetem.");
+  }
+
+  return await prisma.assetAuthor.delete({ where: { id: authorId } });
 };
 
 export const getAssetAuthors = async (
@@ -21,12 +41,12 @@ export const getAssetAuthors = async (
   const data = await prisma.assetAuthor.findMany({
     orderBy: {
       assets: {
-        _count: "desc"
-      }
+        _count: "desc",
+      },
     },
     skip: (page - 1) * perPage,
     take: perPage,
-    include: { assets: true, _count: true }
+    include: { assets: true, _count: true },
   });
   const total = await prisma.assetAuthor.count();
 
@@ -34,15 +54,15 @@ export const getAssetAuthors = async (
     page,
     perPage,
     total,
-    items: data.map((author) => listAssetAuthorMapper(author))
+    items: data.map((author) => listAssetAuthorMapper(author)),
   };
 };
 
 export const getAllAssetAuthors = async (): Promise<Option<string>[]> => {
   const data = await prisma.assetAuthor.findMany({
     orderBy: {
-      lastName: "asc"
-    }
+      lastName: "asc",
+    },
   });
 
   return data.map((item) => ({ value: item.id, label: `${item.lastName} ${item.firstName}` }));
