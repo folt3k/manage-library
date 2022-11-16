@@ -6,6 +6,8 @@ import {
   createAssetCategory,
   getAllAssetCategories,
   getAssetCategories,
+  removeAssetCategory,
+  updateAssetCategory,
 } from "./categories.service";
 import { getPaginationParamsFromQuery } from "../../common/utils/pagination.utils";
 
@@ -19,6 +21,34 @@ router.post(
       const assetCategory = await createAssetCategory(req.body);
 
       res.json(assetCategory);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.put(
+  "/asset-categories/:categoryId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const assetCategory = await updateAssetCategory(req.params.categoryId, req.body);
+
+      res.json(assetCategory);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  "/asset-categories/:categoryId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await removeAssetCategory(req.params.categoryId);
+
+      res.sendStatus(204);
     } catch (err) {
       next(err);
     }

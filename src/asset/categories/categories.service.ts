@@ -1,14 +1,14 @@
 import { AssetCategory } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
-import { CreateAssetCategoryDto } from "./categories.types";
+import { UpsertAssetCategoryDto } from "./categories.types";
 import httpErrors from "../../common/utils/http-error.util";
 import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
 import { ListAssetCategoryRO } from "./categories.models";
 import { listAssetCategoryMapper } from "./categories.mapper";
 import { Option } from "../../common/types/option";
 
-export const createAssetCategory = async (dto: CreateAssetCategoryDto): Promise<AssetCategory> => {
+export const createAssetCategory = async (dto: UpsertAssetCategoryDto): Promise<AssetCategory> => {
   const categoryExists = await prisma.assetCategory.findFirst({
     where: { name: dto.name.toLowerCase() },
   });
@@ -18,6 +18,19 @@ export const createAssetCategory = async (dto: CreateAssetCategoryDto): Promise<
   }
 
   return await prisma.assetCategory.create({ data: { name: dto.name.toLowerCase() } });
+};
+
+export const updateAssetCategory = async (
+  categoryId: string,
+  dto: UpsertAssetCategoryDto
+): Promise<AssetCategory> => {
+  const assetCategory = await prisma.assetCategory.update({ where: { id: categoryId }, data: dto });
+
+  return assetCategory;
+};
+
+export const removeAssetCategory = async (categoryId: string): Promise<AssetCategory> => {
+  return await prisma.assetCategory.delete({ where: { id: categoryId } });
 };
 
 export const getAssetCategories = async (

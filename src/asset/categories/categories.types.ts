@@ -1,3 +1,3 @@
-export interface CreateAssetCategoryDto {
+export interface UpsertAssetCategoryDto {
   name: string;
 }
