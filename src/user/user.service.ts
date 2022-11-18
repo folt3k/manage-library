@@ -27,7 +27,15 @@ export const createUser = async (dto: CreateUserDto): Promise<{ password: string
 };
 
 export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<void> => {
-  await prisma.user.update({ where: { id: userId }, data: dto });
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      firstName: dto.firstName,
+      lastName: dto.firstName,
+      pesel: dto.pesel,
+      phoneNumber: dto.phoneNumber,
+    },
+  });
 
   return undefined;
 };
@@ -60,6 +68,12 @@ export const getMe = async (currentUser: CurrentUser): Promise<GetMeResponse> =>
   return {
     user: userMeMapper(user),
   };
+};
+
+export const getUser = async (userId: string): Promise<Partial<User>> => {
+  const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
+
+  return baseUserMapper(user);
 };
 
 export const getReaders = async (params: PaginationParams): Promise<ListWithPagination<User>> => {
