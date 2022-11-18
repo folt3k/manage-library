@@ -7,6 +7,35 @@ import { changePassword, createUser, getMe, getReaders, getUser, updateUser } fr
 
 const router = Router();
 
+router.get(
+  "/users/readers",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = getPaginationParamsFromQuery(req.query);
+      const users = await getReaders(params);
+
+      res.json(users);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  "/users/:userId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await getUser(req.params.userId);
+
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 router.post(
   "/users",
   auth({ roles: [UserRole.LIBRARIAN] }),
@@ -49,20 +78,6 @@ router.post(
   }
 );
 
-router.get(
-  "/users/:userId",
-  auth({ roles: [UserRole.LIBRARIAN] }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await getUser(req.params.userId);
-
-      res.json(data);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
 router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const me = await getMe(req.user);
@@ -72,20 +87,5 @@ router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFu
     next(err);
   }
 });
-
-router.get(
-  "/users/readers",
-  auth({ roles: [UserRole.LIBRARIAN] }),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const params = getPaginationParamsFromQuery(req.query);
-      const users = await getReaders(params);
-
-      res.json(users);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
 
 export default router;
