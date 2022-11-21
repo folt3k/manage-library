@@ -4,7 +4,11 @@ import { BaseAssetRO } from "./asset.models";
 import { baseAssetCategoryMapper } from "./categories/categories.mapper";
 
 export const baseAssetMapper = (
-  asset: Asset & { image: { path: string }; categories: AssetCategory[]; author: AssetAuthor }
+  asset: Asset & {
+    image: { id: string; path: string };
+    categories: AssetCategory[];
+    author: AssetAuthor;
+  }
 ): BaseAssetRO => ({
   id: asset.id,
   title: asset.title,
@@ -16,7 +20,5 @@ export const baseAssetMapper = (
   lubimyczytacLink: asset.lubimyczytacLink,
   categories: asset.categories.map((cat) => baseAssetCategoryMapper(cat)),
   author: asset.author,
-  image: {
-    path: `${process.env.APP_URL}/${asset.image.path}`,
-  },
+  image: { id: asset.image.id, path: `${process.env.APP_URL}/${asset.image.path}` },
 });

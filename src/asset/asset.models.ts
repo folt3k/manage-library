@@ -12,6 +12,7 @@ export interface BaseAssetRO {
   type: string;
   lubimyczytacLink: string | null;
   image: {
+    id: string;
     path: string;
   };
   categories: BaseAssetCategoryRO[];
