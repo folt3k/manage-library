@@ -29,6 +29,7 @@ export const getAssetCopies = async (
   const data = await prisma.assetCopy.findMany({
     where: {
       assetId,
+      disabled: false,
     },
     include: {
       rentals: {

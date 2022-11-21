@@ -29,7 +29,7 @@ export const removeAssetAuthor = async (authorId: string): Promise<AssetAuthor> 
     throw httpErrors.badRequest("Nie można usunąć autora, który jest powiązany z jakimś assetem.");
   }
 
-  return await prisma.assetAuthor.delete({ where: { id: authorId } });
+  return await prisma.assetAuthor.update({ where: { id: authorId }, data: { disabled: true } });
 };
 
 export const getAssetAuthors = async (
@@ -39,6 +39,9 @@ export const getAssetAuthors = async (
   const perPage = params.perPage;
 
   const data = await prisma.assetAuthor.findMany({
+    where: {
+      disabled: false,
+    },
     orderBy: {
       assets: {
         _count: "desc",
@@ -60,6 +63,9 @@ export const getAssetAuthors = async (
 
 export const getAllAssetAuthors = async (): Promise<Option<string>[]> => {
   const data = await prisma.assetAuthor.findMany({
+    where: {
+      disabled: false,
+    },
     orderBy: {
       lastName: "asc",
     },

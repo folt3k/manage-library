@@ -8,6 +8,7 @@ import { BaseAssetRO } from "./asset.models";
 import { getAssetCopies } from "./copies/copies.service";
 import { CurrentUser } from "../auth/auth.models";
 import { BaseAssetCopyRO } from "./copies/copies.models";
+import httpErrors from "../common/utils/http-error.util";
 
 export const createAsset = async (dto: UpsertAssetDto): Promise<{ id: string }> => {
   const asset = await prisma.asset.create({
@@ -67,7 +68,13 @@ export const updateAsset = async (assetId: string, dto: UpsertAssetDto): Promise
 };
 
 export const removeAsset = async (assetId: string): Promise<void> => {
-  await prisma.asset.delete({ where: { id: assetId } });
+  await prisma.asset.update({ where: { id: assetId }, data: { disabled: true } });
+
+  const copies = await prisma.assetCopy.findMany({ select: { id: true }, where: { assetId } });
+
+  for (const copy of copies) {
+    await prisma.assetCopy.update({ where: { id: copy.id }, data: { disabled: true } });
+  }
 
   return undefined;
 };
@@ -87,6 +94,9 @@ export const getAssets = async (
   const perPage = params.perPage;
 
   const data = await prisma.asset.findMany({
+    where: {
+      disabled: false,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -108,10 +118,14 @@ export const getAsset = async (
   id: string,
   currentUser: CurrentUser
 ): Promise<BaseAssetRO & { copies: BaseAssetCopyRO[] }> => {
-  const asset = await prisma.asset.findFirstOrThrow({
-    where: { id },
+  const asset = await prisma.asset.findFirst({
+    where: { id, disabled: false },
     include: { categories: true, author: true, image: true },
   });
+
+  if (!asset || asset?.disabled) {
+    throw httpErrors.notFound("Nie znaleziono takiej książki lub nie jest ona aktywna");
+  }
 
   const assetCopies = await getAssetCopies(asset.id, currentUser);
 

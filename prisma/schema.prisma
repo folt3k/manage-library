@@ -44,6 +44,7 @@ model Asset {
   copies           AssetCopy[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  disabled         Boolean         @default(false)
 }
 
 model AssetCategory {
@@ -58,6 +59,7 @@ model AssetAuthor {
   firstName String
   lastName  String
   assets    Asset[]
+  disabled  Boolean @default(false)
 }
 
 model AssetImage {
@@ -77,6 +79,7 @@ model AssetCopy {
   updatedAt       DateTime           @updatedAt
   rentals         AssetRental[]
   reservations    AssetReservation[]
+  disabled        Boolean            @default(false)
 }
 
 model AssetRental {
