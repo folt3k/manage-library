@@ -40,6 +40,17 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<vo
   return undefined;
 };
 
+export const removeUser = async (userId: string): Promise<void> => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      disabled: true,
+    },
+  });
+
+  return undefined;
+};
+
 export const changePassword = async (
   dto: ChangePasswordDto,
   currentUser: CurrentUser

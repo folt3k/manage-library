@@ -3,7 +3,15 @@ import { NextFunction, Request, Router, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
 import { getPaginationParamsFromQuery } from "../common/utils/pagination.utils";
-import { changePassword, createUser, getMe, getReaders, getUser, updateUser } from "./user.service";
+import {
+  changePassword,
+  createUser,
+  getMe,
+  getReaders,
+  getUser,
+  removeUser,
+  updateUser,
+} from "./user.service";
 
 const router = Router();
 
@@ -56,6 +64,20 @@ router.put(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await updateUser(req.params.userId, req.body);
+
+      res.sendStatus(204);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.delete(
+  "/users/:userId",
+  auth({ roles: [UserRole.LIBRARIAN] }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await removeUser(req.params.userId);
 
       res.sendStatus(204);
     } catch (err) {
