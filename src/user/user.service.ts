@@ -31,7 +31,7 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<vo
     where: { id: userId },
     data: {
       firstName: dto.firstName,
-      lastName: dto.firstName,
+      lastName: dto.lastName,
       pesel: dto.pesel,
       phoneNumber: dto.phoneNumber,
     },
