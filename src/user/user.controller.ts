@@ -30,6 +30,16 @@ router.get(
   }
 );
 
+router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const me = await getMe(req.user);
+
+    res.json(me);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get(
   "/users/:userId",
   auth({ roles: [UserRole.LIBRARIAN] }),
@@ -99,15 +109,5 @@ router.post(
     }
   }
 );
-
-router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const me = await getMe(req.user);
-
-    res.json(me);
-  } catch (err) {
-    next(err);
-  }
-});
 
 export default router;

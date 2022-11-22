@@ -102,6 +102,7 @@ export const getReaders = async (params: PaginationParams): Promise<ListWithPagi
 
   const total = await prisma.user.count({
     where: {
+      disabled: false,
       role: UserRole.READER,
     },
   });
