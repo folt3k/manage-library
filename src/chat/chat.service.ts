@@ -7,6 +7,22 @@ import httpErrors from "../common/utils/http-error.util";
 import { baseChatRoomMapper } from "./chat.mapper";
 import { BaseChatRoomRO } from "./chat.models";
 
+export const getChatRoomMessages = async (
+  roomId: string,
+  currentUser: CurrentUser
+): Promise<ChatMessage[]> => {
+  await prisma.chatRoom.findFirstOrThrow({
+    where: {
+      id: roomId,
+      memberIds: {
+        has: currentUser.id,
+      },
+    },
+  });
+
+  return await prisma.chatMessage.findMany({ where: { roomId } });
+};
+
 export const getCurrentUserChatRooms = async (
   currentUser: CurrentUser
 ): Promise<BaseChatRoomRO[]> => {
