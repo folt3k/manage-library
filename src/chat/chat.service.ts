@@ -4,9 +4,13 @@ import { CreateChatMessageDto } from "./chat.types";
 import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
 import httpErrors from "../common/utils/http-error.util";
+import { baseChatRoomMapper } from "./chat.mapper";
+import { BaseChatRoomRO } from "./chat.models";
 
-export const getCurrentUserChatRooms = async (currentUser: CurrentUser): Promise<ChatRoom[]> => {
-  return await prisma.chatRoom.findMany({
+export const getCurrentUserChatRooms = async (
+  currentUser: CurrentUser
+): Promise<BaseChatRoomRO[]> => {
+  const rooms = await prisma.chatRoom.findMany({
     where: {
       memberIds: {
         has: currentUser.id,
@@ -14,20 +18,32 @@ export const getCurrentUserChatRooms = async (currentUser: CurrentUser): Promise
       members: {
         every: {
           disabled: false,
-        }
-      }
-
+        },
+      },
     },
-    orderBy: {}
-  })
-}
+    orderBy: {
+      updatedAt: "desc",
+    },
+    include: {
+      members: true,
+      messages: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+      },
+    },
+  });
+
+  return rooms.map((r) => baseChatRoomMapper(r));
+};
 
 export const createChatMessage = async (
   dto: CreateChatMessageDto,
   currentUser: CurrentUser
 ): Promise<ChatMessage> => {
   if (dto.roomId) {
-    return await prisma.chatMessage.create({
+    const message = await prisma.chatMessage.create({
       data: {
         content: dto.content,
         sender: {
@@ -42,6 +58,13 @@ export const createChatMessage = async (
         },
       },
     });
+
+    await prisma.chatRoom.update({
+      where: { id: dto.roomId },
+      data: { updatedAt: new Date().toISOString() },
+    });
+
+    return message;
   } else if (dto.receiverId) {
     let room = await prisma.chatRoom.findFirst({
       where: {

@@ -6,3 +6,9 @@ export interface TokenUserInfo {
   lastName: string;
   role: UserRole;
 }
+
+export interface SlimUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
