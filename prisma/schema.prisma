@@ -22,6 +22,7 @@ model User {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   isActive         Boolean            @default(true)
+  disabled         Boolean            @default(false)
   rentals          AssetRental[]
   AssetReservation AssetReservation[]
   chatMessages     ChatMessage[]
@@ -93,7 +94,7 @@ model AssetRental {
   userId     String    @db.ObjectId
   createdAt  DateTime  @default(now())
   expiredAt  DateTime?
-  returnedAt  DateTime?
+  returnedAt DateTime?
   isReturned Boolean   @default(false)
 }
 

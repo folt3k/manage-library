@@ -31,9 +31,20 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<vo
     where: { id: userId },
     data: {
       firstName: dto.firstName,
-      lastName: dto.firstName,
+      lastName: dto.lastName,
       pesel: dto.pesel,
       phoneNumber: dto.phoneNumber,
+    },
+  });
+
+  return undefined;
+};
+
+export const removeUser = async (userId: string): Promise<void> => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      disabled: true,
     },
   });
 
@@ -84,12 +95,14 @@ export const getReaders = async (params: PaginationParams): Promise<ListWithPagi
     skip: (page - 1) * perPage,
     take: perPage,
     where: {
+      disabled: false,
       role: UserRole.READER,
     },
   });
 
   const total = await prisma.user.count({
     where: {
+      disabled: false,
       role: UserRole.READER,
     },
   });
