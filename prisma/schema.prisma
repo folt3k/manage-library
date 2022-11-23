@@ -24,6 +24,9 @@ model User {
   isActive         Boolean            @default(true)
   rentals          AssetRental[]
   AssetReservation AssetReservation[]
+  chatMessages     ChatMessage[]
+  chatRoomIds String[]   @db.ObjectId
+  chatRooms  ChatRoom[] @relation(fields: [chatRoomIds], references: [id])
 }
 
 model Asset {
@@ -103,6 +106,25 @@ model AssetReservation {
   createdAt DateTime  @default(now())
   expiredAt DateTime?
   isExpired Boolean   @default(false)
+}
+
+model ChatMessage {
+    id        String    @id @default(auto()) @map("_id") @db.ObjectId
+    sender    User      @relation(fields: [senderId], references: [id])
+    senderId  String    @db.ObjectId
+    room      ChatRoom  @relation(fields: [roomId], references: [id])
+    roomId    String    @db.ObjectId
+    createdAt DateTime  @default(now())
+    content   String
+}
+
+model ChatRoom {
+    id        String    @id @default(auto()) @map("_id") @db.ObjectId
+    memberIds String[]  @db.ObjectId
+    members   User[]    @relation(fields: [memberIds], references: [id])
+    messages  ChatMessage[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
 }
 
 // enums
