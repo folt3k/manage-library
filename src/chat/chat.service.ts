@@ -1,9 +1,26 @@
-import { ChatMessage } from "@prisma/client";
+import { ChatMessage, ChatRoom } from "@prisma/client";
 
 import { CreateChatMessageDto } from "./chat.types";
 import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
 import httpErrors from "../common/utils/http-error.util";
+
+export const getCurrentUserChatRooms = async (currentUser: CurrentUser): Promise<ChatRoom[]> => {
+  return await prisma.chatRoom.findMany({
+    where: {
+      memberIds: {
+        has: currentUser.id,
+      },
+      members: {
+        every: {
+          disabled: false,
+        }
+      }
+
+    },
+    orderBy: {}
+  })
+}
 
 export const createChatMessage = async (
   dto: CreateChatMessageDto,
