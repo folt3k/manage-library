@@ -8,6 +8,7 @@ import { generateRandomString } from "../common/utils/random-string-generator.ut
 import { baseUserMapper, userMeMapper } from "./user.mapper";
 import { ChangePasswordDto, CreateUserDto, GetMeResponse, UpdateUserDto } from "./user.types";
 import { generateHashPassword } from "./user.utils";
+import { Option } from "../common/types/option";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
   const randomPassword = generateRandomString();
@@ -85,6 +86,36 @@ export const getUser = async (userId: string): Promise<Partial<User>> => {
   const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
 
   return baseUserMapper(user);
+};
+
+export const getUserOptions = async ({ q }: { q?: string }): Promise<Option<string>[]> => {
+  if (!q) {
+    return [];
+  }
+
+  return await prisma.user
+    .findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: q,
+              mode: "insensitive",
+            },
+          },
+          {
+            lastName: {
+              contains: q,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      take: 10,
+    })
+    .then((data) =>
+      data.map((item) => ({ value: item.id, label: `${item.firstName} ${item.lastName}` }))
+    );
 };
 
 export const getReaders = async (params: PaginationParams): Promise<ListWithPagination<User>> => {

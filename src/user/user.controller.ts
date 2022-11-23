@@ -9,6 +9,7 @@ import {
   getMe,
   getReaders,
   getUser,
+  getUserOptions,
   removeUser,
   updateUser,
 } from "./user.service";
@@ -29,6 +30,16 @@ router.get(
     }
   }
 );
+
+router.get("/users/all", auth(), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const users = await getUserOptions(req.query);
+
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get("/users/me", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
