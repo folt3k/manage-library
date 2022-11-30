@@ -9,5 +9,5 @@ export const baseChatRoomMapper = (
   id: data.id,
   updatedAt: data.updatedAt,
   members: data.members.map((m) => ({ id: m.id, firstName: m.firstName, lastName: m.lastName })),
-  messages: data.messages.map((m) => omit<ChatMessage>(m, ["roomId", "senderId"])),
+  messages: data.messages.map((m) => omit<ChatMessage>(m, ["roomId"])),
 });
