@@ -1,6 +1,7 @@
 import { UserRole } from "@prisma/client";
 
 export interface TokenUserInfo {
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
