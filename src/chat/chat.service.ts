@@ -113,6 +113,9 @@ export const createChatMessage = async (
         senderId: currentUser.id,
         roomId: room.id,
       },
+      include: {
+        room: true,
+      },
     });
   }
 
