@@ -114,7 +114,17 @@ export const createChatMessage = async (
         roomId: room.id,
       },
       include: {
-        room: true,
+        room: {
+          include: {
+            members: true,
+            messages: {
+              orderBy: {
+                createdAt: "desc",
+              },
+              take: 1,
+            },
+          },
+        },
       },
     });
   }
