@@ -59,10 +59,10 @@ router.get(
   "/asset-authors",
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
-    const params = getPaginationParamsFromQuery(req.query);
+    const paginationParams = getPaginationParamsFromQuery(req.query);
 
     try {
-      const assetSubjects = await getAssetAuthors(params);
+      const assetSubjects = await getAssetAuthors({ ...req.query, ...paginationParams });
 
       res.json(assetSubjects);
     } catch (err) {

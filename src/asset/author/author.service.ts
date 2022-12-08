@@ -33,25 +33,74 @@ export const removeAssetAuthor = async (authorId: string): Promise<AssetAuthor> 
 };
 
 export const getAssetAuthors = async (
-  params: PaginationParams
+  params: PaginationParams & { q?: string; sort?: string[] }
 ): Promise<ListWithPagination<AssetAuthor>> => {
   const page = params.page;
   const perPage = params.perPage;
 
-  const data = await prisma.assetAuthor.findMany({
-    where: {
-      disabled: false,
-    },
-    orderBy: {
+  const orderBy: Array<object> = [];
+  let sort: string[] = [];
+
+  if (params.sort) {
+    sort = Array.isArray(params.sort) ? params.sort : [params.sort];
+  }
+
+  if (params.sort?.length) {
+    sort.reverse().forEach((param) => {
+      const [key, value] = param.split(":");
+
+      switch (key) {
+        case "name":
+          orderBy.push({
+            lastName: value,
+          });
+          break;
+        case "assetsCount":
+          orderBy.push({
+            assets: {
+              _count: value,
+            },
+          });
+
+          break;
+      }
+    });
+  } else {
+    orderBy.push({
       assets: {
         _count: "desc",
       },
+    });
+  }
+
+  const data = await prisma.assetAuthor.findMany({
+    where: {
+      ...(params.q
+        ? {
+            OR: [
+              {
+                firstName: {
+                  contains: params.q,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: params.q,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : null),
+      disabled: false,
     },
+    orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
     include: { assets: true, _count: true },
   });
-  const total = await prisma.assetAuthor.count();
+  const total = await prisma.assetAuthor.count({ where: { disabled: false } });
 
   return {
     page,
