@@ -110,6 +110,11 @@ export const getUserOptions = async ({ q }: { q?: string }): Promise<Option<stri
             },
           },
         ],
+        AND: [
+          {
+            disabled: false,
+          },
+        ],
       },
       take: 10,
     })
