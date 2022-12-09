@@ -2,7 +2,7 @@ import { User, UserRole } from "@prisma/client";
 
 import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
-import { ListWithPagination, PaginationParams } from "../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../common/types/pagination";
 import httpErrors from "../common/utils/http-error.util";
 import { generateRandomString } from "../common/utils/random-string-generator.util";
 import { baseUserMapper, userMeMapper } from "./user.mapper";

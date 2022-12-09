@@ -3,7 +3,7 @@ import {  AssetCategory } from "@prisma/client";
 import prisma from "../../../prisma/client";
 import { UpsertAssetCategoryDto } from "./categories.types";
 import httpErrors from "../../common/utils/http-error.util";
-import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../../common/types/pagination";
 import { ListAssetCategoryRO } from "./categories.models";
 import { listAssetCategoryMapper } from "./categories.mapper";
 import { Option } from "../../common/types/option";

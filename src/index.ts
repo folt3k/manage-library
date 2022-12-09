@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import * as dotenv from 'dotenv';
 
-import HttpException from "./common/models/http";
+import HttpException from "./common/types/http";
 import routes from "./routes";
 import httpErrors from "./common/utils/http-error.util";
 

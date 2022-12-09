@@ -2,10 +2,13 @@ import { AssetAuthor } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
 import { UpsertAssetAuthorDto } from "./author.types";
-import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../../common/types/pagination";
 import { listAssetAuthorMapper } from "./authors.mapper";
 import { Option } from "../../common/types/option";
 import httpErrors from "../../common/utils/http-error.util";
+import { SortOrder, SortParams } from "../../common/types/sort";
+import { prepareOrderBy } from "../../common/utils/sort.utils";
+import { sortBy } from "lodash";
 
 export const createAssetAuthor = async (dto: UpsertAssetAuthorDto): Promise<AssetAuthor> => {
   const assetAuthor = await prisma.assetAuthor.create({ data: dto });
@@ -33,45 +36,33 @@ export const removeAssetAuthor = async (authorId: string): Promise<AssetAuthor> 
 };
 
 export const getAssetAuthors = async (
-  params: PaginationParams & { q?: string; sort?: string[] }
+  params: PaginationParams & SortParams & { q?: string }
 ): Promise<ListWithPagination<AssetAuthor>> => {
   const page = params.page;
   const perPage = params.perPage;
 
-  const orderBy: Array<object> = [];
-  let sort: string[] = [];
-
-  if (params.sort) {
-    sort = Array.isArray(params.sort) ? params.sort : [params.sort];
-  }
-
-  if (params.sort?.length) {
-    sort.forEach((param) => {
-      const [key, value] = param.split(":");
-
-      switch (key) {
+  const orderBy = prepareOrderBy(
+    params,
+    ({ sortBy, sortOrder }) => {
+      switch (sortBy) {
         case "name":
-          orderBy.push({
-            lastName: value,
-          });
-          break;
+          return {
+            lastName: sortOrder,
+          };
         case "assetsCount":
-          orderBy.push({
+          return {
             assets: {
-              _count: value,
+              _count: sortOrder,
             },
-          });
-
-          break;
+          };
       }
-    });
-  } else {
-    orderBy.push({
+    },
+    {
       assets: {
         _count: "desc",
       },
-    });
-  }
+    }
+  );
 
   const data = await prisma.assetAuthor.findMany({
     where: {

@@ -9,7 +9,7 @@ import {
   markAssetReservationAsExpired as markUserAssetReservationAsRent,
 } from "../reservations/reservations.service";
 import { BaseListAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
-import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../../common/types/pagination";
 import { baseListAssetRental, listAssetRental } from "./rentals.mapper";
 
 export const createAssetRental = async (

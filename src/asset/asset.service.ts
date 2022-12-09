@@ -2,7 +2,7 @@ import { omit } from "lodash";
 
 import prisma from "../../prisma/client";
 import { UpsertAssetDto, CreateAssetImageDto } from "./asset.types";
-import { ListWithPagination, PaginationParams } from "../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../common/types/pagination";
 import { baseAssetMapper } from "./asset.mapper";
 import { BaseAssetRO } from "./asset.models";
 import { getAssetCopies } from "./copies/copies.service";

@@ -1,4 +1,4 @@
-import HttpException from "../models/http";
+import HttpException from "../types/http";
 
 const httpErrors = {
   badRequest: (mesage?: string) => new HttpException(400, mesage),

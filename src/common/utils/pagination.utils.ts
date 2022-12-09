@@ -1,5 +1,5 @@
 import { DEFAULT_PER_PAGE } from "../constans";
-import { PaginationParams } from "../models/pagination";
+import { PaginationParams } from "../types/pagination";
 
 export const getPaginationParamsFromQuery = (query: {
   [key: string]: string | undefined | unknown;

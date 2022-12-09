@@ -6,7 +6,7 @@ import { MAX_RESERVATION_PERION_IN_DAYS } from "../../common/constans";
 import httpErrors from "../../common/utils/http-error.util";
 import { BaseAssetCopyRO } from "../copies/copies.models";
 import { getAssetCopy } from "../copies/copies.service";
-import { ListWithPagination, PaginationParams } from "../../common/models/pagination";
+import { ListWithPagination, PaginationParams } from "../../common/types/pagination";
 import { listUserAssetReservation } from "./reservations.mapper";
 
 export const createAssetReservation = async (
