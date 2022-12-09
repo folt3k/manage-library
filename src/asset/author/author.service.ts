@@ -46,7 +46,7 @@ export const getAssetAuthors = async (
   }
 
   if (params.sort?.length) {
-    sort.reverse().forEach((param) => {
+    sort.forEach((param) => {
       const [key, value] = param.split(":");
 
       switch (key) {
