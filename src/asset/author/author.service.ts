@@ -6,9 +6,8 @@ import { ListWithPagination, PaginationParams } from "../../common/types/paginat
 import { listAssetAuthorMapper } from "./authors.mapper";
 import { Option } from "../../common/types/option";
 import httpErrors from "../../common/utils/http-error.util";
-import { SortOrder, SortParams } from "../../common/types/sort";
+import { SortParams } from "../../common/types/sort";
 import { prepareOrderBy } from "../../common/utils/sort.utils";
-import { sortBy } from "lodash";
 
 export const createAssetAuthor = async (dto: UpsertAssetAuthorDto): Promise<AssetAuthor> => {
   const assetAuthor = await prisma.assetAuthor.create({ data: dto });
@@ -64,34 +63,36 @@ export const getAssetAuthors = async (
     }
   );
 
+  const where: object = {
+    ...(params.q
+      ? {
+          OR: [
+            {
+              firstName: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : null),
+    disabled: false,
+  };
+
   const data = await prisma.assetAuthor.findMany({
-    where: {
-      ...(params.q
-        ? {
-            OR: [
-              {
-                firstName: {
-                  contains: params.q,
-                  mode: "insensitive",
-                },
-              },
-              {
-                lastName: {
-                  contains: params.q,
-                  mode: "insensitive",
-                },
-              },
-            ],
-          }
-        : null),
-      disabled: false,
-    },
+    where,
     orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
     include: { assets: true, _count: true },
   });
-  const total = await prisma.assetAuthor.count({ where: { disabled: false } });
+  const total = await prisma.assetAuthor.count({ where });
 
   return {
     page,

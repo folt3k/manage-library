@@ -1,4 +1,4 @@
-import {  AssetCategory } from "@prisma/client";
+import { AssetCategory } from "@prisma/client";
 
 import prisma from "../../../prisma/client";
 import { UpsertAssetCategoryDto } from "./categories.types";
@@ -7,6 +7,8 @@ import { ListWithPagination, PaginationParams } from "../../common/types/paginat
 import { ListAssetCategoryRO } from "./categories.models";
 import { listAssetCategoryMapper } from "./categories.mapper";
 import { Option } from "../../common/types/option";
+import { SortParams } from "../../common/types/sort";
+import { prepareOrderBy } from "../../common/utils/sort.utils";
 
 export const createAssetCategory = async (dto: UpsertAssetCategoryDto): Promise<AssetCategory> => {
   const categoryExists = await prisma.assetCategory.findFirst({
@@ -34,22 +36,53 @@ export const removeAssetCategory = async (categoryId: string): Promise<AssetCate
 };
 
 export const getAssetCategories = async (
-  params: PaginationParams
+  params: PaginationParams & SortParams & { q?: string }
 ): Promise<ListWithPagination<ListAssetCategoryRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
-  const data = await prisma.assetCategory.findMany({
-    orderBy: {
+  const orderBy = prepareOrderBy(
+    params,
+    ({ sortBy, sortOrder }) => {
+      switch (sortBy) {
+        case "name":
+          return {
+            name: sortOrder,
+          };
+        case "assetsCount":
+          return {
+            assets: {
+              _count: sortOrder,
+            },
+          };
+      }
+    },
+    {
       assets: {
         _count: "desc",
       },
-    },
+    }
+  );
+
+  const where: object = {
+    ...(params.q
+      ? {
+          name: {
+            contains: params.q,
+            mode: "insensitive",
+          },
+        }
+      : null),
+  };
+
+  const data = await prisma.assetCategory.findMany({
+    where,
+    orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
     include: { assets: true, _count: true },
   });
-  const total = await prisma.assetCategory.count();
+  const total = await prisma.assetCategory.count({ where });
 
   return {
     page,

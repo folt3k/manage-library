@@ -62,7 +62,7 @@ router.get(
     const params = getPaginationParamsFromQuery(req.query);
 
     try {
-      const assetCategories = await getAssetCategories(params);
+      const assetCategories = await getAssetCategories({ ...req.query, ...params });
 
       res.json(assetCategories);
     } catch (err) {
