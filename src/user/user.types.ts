@@ -3,7 +3,7 @@ import { User } from "@prisma/client";
 export interface BaseUpsertUserDto {
   firstName: string;
   lastName: string;
-  pesel: number;
+  pesel: string;
   phoneNumber: number;
 }
 

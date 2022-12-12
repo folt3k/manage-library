@@ -16,7 +16,7 @@ model User {
   password         String
   firstName        String
   lastName         String
-  pesel            Int                @unique
+  pesel            String                @unique
   phoneNumber      Int
   role             UserRole
   createdAt        DateTime           @default(now())

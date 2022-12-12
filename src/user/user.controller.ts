@@ -21,8 +21,8 @@ router.get(
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const params = getPaginationParamsFromQuery(req.query);
-      const users = await getReaders(params);
+      const paginationParams = getPaginationParamsFromQuery(req.query);
+      const users = await getReaders({ ...req.query, ...paginationParams });
 
       res.json(users);
     } catch (err) {

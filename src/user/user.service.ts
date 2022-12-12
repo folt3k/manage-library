@@ -9,6 +9,8 @@ import { baseUserMapper, userMeMapper } from "./user.mapper";
 import { ChangePasswordDto, CreateUserDto, GetMeResponse, UpdateUserDto } from "./user.types";
 import { generateHashPassword } from "./user.utils";
 import { Option } from "../common/types/option";
+import { SortParams } from "../common/types/sort";
+import { prepareOrderBy } from "../common/utils/sort.utils";
 
 export const createUser = async (dto: CreateUserDto): Promise<{ password: string }> => {
   const randomPassword = generateRandomString();
@@ -123,23 +125,83 @@ export const getUserOptions = async ({ q }: { q?: string }): Promise<Option<stri
     );
 };
 
-export const getReaders = async (params: PaginationParams): Promise<ListWithPagination<User>> => {
+export const getReaders = async (
+  params: PaginationParams & SortParams & { q?: string; onlyActive?: string }
+): Promise<ListWithPagination<User>> => {
   const page = params.page;
   const perPage = params.perPage;
 
+  const orderBy = prepareOrderBy(
+    params,
+    ({ sortBy, sortOrder }) => {
+      switch (sortBy) {
+        case "name":
+          return {
+            lastName: sortOrder,
+          };
+        case "status":
+          return {
+            disabled: sortOrder,
+          };
+      }
+    },
+    [
+      {
+        disabled: "asc",
+      },
+      {
+        lastName: "asc",
+      },
+    ]
+  );
+
+  const where: object = {
+    role: UserRole.READER,
+    ...(params.q
+      ? {
+          OR: [
+            {
+              firstName: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+            {
+              email: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+            {
+              pesel: {
+                contains: params.q,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : null),
+    ...(params.onlyActive === "true"
+      ? {
+          disabled: false,
+        }
+      : null),
+  };
+
   const users = await prisma.user.findMany({
+    where,
+    orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
-    where: {
-      role: UserRole.READER,
-    },
   });
 
-  const total = await prisma.user.count({
-    where: {
-      role: UserRole.READER,
-    },
-  });
+  const total = await prisma.user.count({ where });
 
   return {
     page,
