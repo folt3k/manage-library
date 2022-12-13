@@ -81,6 +81,8 @@ export const getAssetCategories = async (
     skip: (page - 1) * perPage,
     take: perPage,
     include: { assets: true, _count: true },
+    // TODO: Problem z sortowanie - sortowanie po liczbie tylko aktywnych assetów
+    //  _count: { select: { assets: { where: { disabled: false } } } },
   });
   const total = await prisma.assetCategory.count({ where });
 

@@ -59,10 +59,10 @@ router.delete(
 );
 
 router.get("/assets", auth(), async (req: Request, res: Response, next: NextFunction) => {
-  const params = getPaginationParamsFromQuery(req.query);
+  const paginationParams = getPaginationParamsFromQuery(req.query);
 
   try {
-    const assets = await getAssets(params);
+    const assets = await getAssets({ ...req.query, ...paginationParams });
 
     res.json(assets);
   } catch (err) {

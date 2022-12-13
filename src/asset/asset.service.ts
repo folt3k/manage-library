@@ -1,4 +1,5 @@
 import { omit } from "lodash";
+import { AssetType } from "@prisma/client";
 
 import prisma from "../../prisma/client";
 import { UpsertAssetDto, CreateAssetImageDto } from "./asset.types";
@@ -9,6 +10,9 @@ import { getAssetCopies } from "./copies/copies.service";
 import { CurrentUser } from "../auth/auth.models";
 import { BaseAssetCopyRO } from "./copies/copies.models";
 import httpErrors from "../common/utils/http-error.util";
+import { SortParams } from "../common/types/sort";
+import { prepareOrderBy } from "../common/utils/sort.utils";
+import { mapParamToArray } from "../common/utils/filters.utils";
 
 export const createAsset = async (dto: UpsertAssetDto): Promise<{ id: string }> => {
   const asset = await prisma.asset.create({
@@ -88,23 +92,81 @@ export const saveAssetImage = async (dto: CreateAssetImageDto): Promise<{ id: st
 };
 
 export const getAssets = async (
-  params: PaginationParams
+  params: PaginationParams &
+    SortParams & {
+      title?: string;
+      type?: AssetType[] | AssetType;
+      author?: string[] | string;
+      category?: string[] | string;
+    }
 ): Promise<ListWithPagination<BaseAssetRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
-  const data = await prisma.asset.findMany({
-    where: {
-      disabled: false,
+  const typesParam = mapParamToArray(params.type);
+  const authorsParam = mapParamToArray(params.author);
+  const categoriesParam = mapParamToArray(params.category);
+
+  const orderBy = prepareOrderBy(
+    params,
+    ({ sortBy, sortOrder }) => {
+      switch (sortBy) {
+        case "title":
+          return {
+            title: sortOrder,
+          };
+        case "author":
+          return {
+            author: {
+              lastName: sortOrder,
+            },
+          };
+      }
     },
-    orderBy: {
+    {
       createdAt: "desc",
-    },
+    }
+  );
+
+  const where: object = {
+    disabled: false,
+    ...(params.title
+      ? {
+          title: {
+            contains: params.title,
+            mode: "insensitive",
+          },
+        }
+      : null),
+    ...(typesParam.length
+      ? {
+          type: { in: typesParam },
+        }
+      : null),
+    ...(authorsParam.length
+      ? {
+          authorId: { in: authorsParam },
+        }
+      : null),
+    ...(categoriesParam.length
+      ? {
+          categories: {
+            some: {
+              id: { in: categoriesParam },
+            },
+          },
+        }
+      : null),
+  };
+
+  const data = await prisma.asset.findMany({
+    where,
+    orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
     include: { categories: true, author: true, image: true },
   });
-  const total = await prisma.asset.count();
+  const total = await prisma.asset.count({ where });
 
   return {
     page,
