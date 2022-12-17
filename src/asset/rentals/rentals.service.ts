@@ -13,6 +13,9 @@ import { ListWithPagination, PaginationParams } from "../../common/types/paginat
 import { baseListAssetRental, listAssetRental } from "./rentals.mapper";
 import { SortParams } from "../../common/types/sort";
 import { prepareOrderBy } from "../../common/utils/sort.utils";
+import { AssetRentalsListFilterParams } from "./rentals.types";
+import { mapParamToArray } from "../../common/utils/filters.utils";
+import { formatQueryParamDate } from "../../common/utils/date.utils";
 
 export const createAssetRental = async (
   copyId: string,
@@ -85,10 +88,12 @@ export const closeAssetRental = async (
 };
 
 export const getAssetRentals = async (
-  params: PaginationParams & SortParams & {}
+  params: PaginationParams & SortParams & AssetRentalsListFilterParams
 ): Promise<ListWithPagination<ListAssetRentalRO>> => {
   const page = params.page;
   const perPage = params.perPage;
+
+  const statusParam = mapParamToArray(params.status);
 
   const orderBy = prepareOrderBy(
     params,
@@ -139,7 +144,114 @@ export const getAssetRentals = async (
     }
   );
 
+  const where: object = {
+    ...(params.title
+      ? {
+          copy: {
+            asset: {
+              title: {
+                contains: params.title,
+                mode: "insensitive",
+              },
+            },
+          },
+        }
+      : null),
+    ...(params.inventoryNumber
+      ? {
+          copy: {
+            inventoryNumber: {
+              contains: params.inventoryNumber,
+              mode: "insensitive",
+            },
+          },
+        }
+      : null),
+    ...(params.reader
+      ? {
+          user: {
+            OR: [
+              {
+                firstName: {
+                  contains: params.reader,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: params.reader,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          },
+        }
+      : null),
+    AND: [
+      ...(params.status
+        ? statusParam
+            .filter((status) => status === "Returned" || status === "NotReturned")
+            .map((status) => ({ isReturned: status === "Returned" }))
+        : []),
+      ...(params.startDateFrom
+        ? [
+            {
+              createdAt: {
+                gte: formatQueryParamDate(params.startDateFrom, "from"),
+              },
+            },
+          ]
+        : []),
+      ...(params.startDateTo
+        ? [
+            {
+              createdAt: {
+                lte: formatQueryParamDate(params.startDateTo, "to"),
+              },
+            },
+          ]
+        : []),
+      ...(params.endDateFrom
+        ? [
+            {
+              expiredAt: {
+                gte: formatQueryParamDate(params.endDateFrom, "from"),
+              },
+            },
+          ]
+        : []),
+      ...(params.endDateTo
+        ? [
+            {
+              expiredAt: {
+                lte: formatQueryParamDate(params.endDateTo, "to"),
+              },
+            },
+          ]
+        : []),
+      ...(params.returnedDateFrom
+        ? [
+            {
+              returnedAt: {
+                gte: formatQueryParamDate(params.returnedDateFrom, "from"),
+              },
+            },
+          ]
+        : []),
+      ...(params.returnedDateTo
+        ? [
+            {
+              returnedAt: {
+                lte: formatQueryParamDate(params.returnedDateTo, "to"),
+              },
+            },
+          ]
+        : []),
+    ],
+  };
+
   const data = await prisma.assetRental.findMany({
+    where,
     orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
@@ -156,7 +268,7 @@ export const getAssetRentals = async (
       user: true,
     },
   });
-  const total = await prisma.assetRental.count();
+  const total = await prisma.assetRental.count({ where });
 
   return {
     page,
