@@ -11,6 +11,8 @@ import {
 import { BaseListAssetRentalRO, ListAssetRentalRO } from "./rentals.models";
 import { ListWithPagination, PaginationParams } from "../../common/types/pagination";
 import { baseListAssetRental, listAssetRental } from "./rentals.mapper";
+import { SortParams } from "../../common/types/sort";
+import { prepareOrderBy } from "../../common/utils/sort.utils";
 
 export const createAssetRental = async (
   copyId: string,
@@ -83,15 +85,62 @@ export const closeAssetRental = async (
 };
 
 export const getAssetRentals = async (
-  params: PaginationParams
+  params: PaginationParams & SortParams & {}
 ): Promise<ListWithPagination<ListAssetRentalRO>> => {
   const page = params.page;
   const perPage = params.perPage;
 
-  const data = await prisma.assetRental.findMany({
-    orderBy: {
-      isReturned: "asc",
+  const orderBy = prepareOrderBy(
+    params,
+    ({ sortBy, sortOrder }) => {
+      switch (sortBy) {
+        case "inventoryNumber":
+          return {
+            copy: {
+              inventoryNumber: sortOrder,
+            },
+          };
+        case "author":
+          return {
+            copy: {
+              asset: {
+                author: {
+                  lastName: sortOrder,
+                },
+              },
+            },
+          };
+        case "user":
+          return {
+            user: {
+              lastName: sortOrder,
+            },
+          };
+        case "createdAt":
+          return {
+            createdAt: sortOrder,
+          };
+        case "expiredAt":
+          return {
+            expiredAt: sortOrder,
+          };
+        case "returnedAt":
+          return {
+            returnedAt: sortOrder,
+          };
+        case "isReturned":
+          return {
+            isReturned: sortOrder,
+          };
+      }
     },
+    {
+      isReturned: "asc",
+    }
+  );
+
+  const data = await prisma.assetRental.findMany({
+    orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
     include: {

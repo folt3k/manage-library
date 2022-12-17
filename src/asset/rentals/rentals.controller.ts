@@ -44,10 +44,10 @@ router.get(
   "/asset-rentals",
   auth({ roles: [UserRole.LIBRARIAN] }),
   async (req: Request, res: Response, next: NextFunction) => {
-    const params = getPaginationParamsFromQuery(req.query);
+    const paginationParams = getPaginationParamsFromQuery(req.query);
 
     try {
-      const assets = await getAssetRentals(params);
+      const assets = await getAssetRentals({ ...req.query, ...paginationParams });
 
       res.json(assets);
     } catch (err) {
