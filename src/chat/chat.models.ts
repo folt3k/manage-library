@@ -7,3 +7,7 @@ export interface BaseChatRoomRO {
   members: SlimUser[];
   messages: Array<Partial<ChatMessage>>;
 }
+
+export interface ListChatRoomRO extends BaseChatRoomRO {
+  unreadMessagesCount: number;
+}

@@ -11,3 +11,10 @@ export const baseChatRoomMapper = (
   members: data.members.map((m) => ({ id: m.id, firstName: m.firstName, lastName: m.lastName })),
   messages: data.messages.map((m) => omit<ChatMessage>(m, ["roomId"])),
 });
+
+export const listChatRoomMapper = (
+  data: ChatRoom & { members: User[]; messages: ChatMessage[]; _count: { messages: number } }
+) => ({
+  ...baseChatRoomMapper(data),
+  unreadMessagesCount: data._count.messages,
+});

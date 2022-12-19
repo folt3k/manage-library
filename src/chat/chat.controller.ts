@@ -1,12 +1,18 @@
 import { NextFunction, Router, Request, Response } from "express";
 
 import { auth } from "../auth/auth.middlewares";
-import { createChatMessage, getChatRoomMessages, getCurrentUserChatRooms } from "./chat.service";
+import {
+  createChatMessage,
+  getChatRoomMessages,
+  getCurrentUserChatRooms,
+  getCurrentUserUnreadMessagesCount,
+  markMessagesAsReadOut,
+} from "./chat.service";
 
 const router = Router();
 
 router.get(
-  "/chat-rooms/:roomId/messages",
+  "/chat/rooms/:roomId/messages",
   auth(),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,7 +25,7 @@ router.get(
   }
 );
 
-router.post("/chat-message", auth(), async (req: Request, res: Response, next: NextFunction) => {
+router.post("/chat/message", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const message = await createChatMessage(req.body, req.user);
 
@@ -29,7 +35,7 @@ router.post("/chat-message", auth(), async (req: Request, res: Response, next: N
   }
 });
 
-router.get("/chat-rooms", auth(), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/chat/rooms", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const rooms = await getCurrentUserChatRooms(req.user);
 
@@ -38,5 +44,33 @@ router.get("/chat-rooms", auth(), async (req: Request, res: Response, next: Next
     next(err);
   }
 });
+
+router.put(
+  "/chat/rooms/:roomId/mark-as-read",
+  auth(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await markMessagesAsReadOut(req.params.roomId, req.user);
+
+      res.sendStatus(204);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+router.get(
+  "/chat/unread-messages-count",
+  auth(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await getCurrentUserUnreadMessagesCount(req.user);
+
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 export default router;

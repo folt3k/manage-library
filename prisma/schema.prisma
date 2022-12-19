@@ -116,6 +116,7 @@ model ChatMessage {
     senderId  String    @db.ObjectId
     room      ChatRoom  @relation(fields: [roomId], references: [id])
     roomId    String    @db.ObjectId
+    isReadOut Boolean   @default(false)
     createdAt DateTime  @default(now())
     content   String
 }

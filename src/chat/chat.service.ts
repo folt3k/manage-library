@@ -4,8 +4,8 @@ import { CreateChatMessageDto } from "./chat.types";
 import prisma from "../../prisma/client";
 import { CurrentUser } from "../auth/auth.models";
 import httpErrors from "../common/utils/http-error.util";
-import { baseChatRoomMapper } from "./chat.mapper";
-import { BaseChatRoomRO } from "./chat.models";
+import { listChatRoomMapper } from "./chat.mapper";
+import { ListChatRoomRO } from "./chat.models";
 
 export const getChatRoomMessages = async (
   roomId: string,
@@ -25,7 +25,7 @@ export const getChatRoomMessages = async (
 
 export const getCurrentUserChatRooms = async (
   currentUser: CurrentUser
-): Promise<BaseChatRoomRO[]> => {
+): Promise<ListChatRoomRO[]> => {
   const rooms = await prisma.chatRoom.findMany({
     where: {
       memberIds: {
@@ -48,10 +48,22 @@ export const getCurrentUserChatRooms = async (
         },
         take: 1,
       },
+      _count: {
+        select: {
+          messages: {
+            where: {
+              senderId: {
+                not: currentUser.id,
+              },
+              isReadOut: false,
+            },
+          },
+        },
+      },
     },
   });
 
-  return rooms.map((r) => baseChatRoomMapper(r));
+  return rooms.map((r) => listChatRoomMapper(r));
 };
 
 export const createChatMessage = async (
@@ -130,4 +142,49 @@ export const createChatMessage = async (
   }
 
   throw httpErrors.badRequest();
+};
+
+export const getCurrentUserUnreadMessagesCount = async (
+  currentUser: CurrentUser
+): Promise<number> => {
+  return await prisma.chatMessage.count({
+    where: {
+      room: {
+        memberIds: {
+          has: currentUser.id,
+        },
+      },
+      senderId: {
+        not: currentUser.id,
+      },
+      isReadOut: false,
+    },
+  });
+};
+
+export const markMessagesAsReadOut = async (
+  roomId: string,
+  currentUser: CurrentUser
+): Promise<void> => {
+  const roomExists = await prisma.chatRoom.findFirstOrThrow({
+    where: {
+      id: roomId,
+      memberIds: {
+        has: currentUser.id,
+      },
+    },
+  });
+
+  if (!roomExists) {
+    throw httpErrors.badRequest();
+  }
+
+  await prisma.chatMessage.updateMany({
+    where: {
+      roomId,
+    },
+    data: {
+      isReadOut: true,
+    },
+  });
 };
