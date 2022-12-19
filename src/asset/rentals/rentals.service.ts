@@ -188,7 +188,7 @@ export const getAssetRentals = async (
         }
       : null),
     AND: [
-      ...(params.status
+      ...(params.status && statusParam.length < 2
         ? statusParam
             .filter((status) => status === "Returned" || status === "NotReturned")
             .map((status) => ({ isReturned: status === "Returned" }))
