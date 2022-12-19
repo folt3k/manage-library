@@ -105,13 +105,11 @@ export const getAssetRentals = async (
               inventoryNumber: sortOrder,
             },
           };
-        case "author":
+        case "title":
           return {
             copy: {
               asset: {
-                author: {
-                  lastName: sortOrder,
-                },
+                title: sortOrder
               },
             },
           };
