@@ -182,6 +182,7 @@ export const markMessagesAsReadOut = async (
   await prisma.chatMessage.updateMany({
     where: {
       roomId,
+      senderId: { not: currentUser.id },
     },
     data: {
       isReadOut: true,
