@@ -25,7 +25,7 @@ router.get(
   }
 );
 
-router.post("/chat/message", auth(), async (req: Request, res: Response, next: NextFunction) => {
+router.post("/chat/messages", auth(), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const message = await createChatMessage(req.body, req.user);
 
