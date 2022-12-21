@@ -73,7 +73,7 @@ router.get(
 
 router.get(
   "/asset-authors/all",
-  auth({ roles: [UserRole.LIBRARIAN] }),
+  auth(),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const assetSubjects = await getAllAssetAuthors();
