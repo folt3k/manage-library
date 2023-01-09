@@ -44,6 +44,12 @@ export const updateUser = async (userId: string, dto: UpdateUserDto): Promise<vo
 };
 
 export const removeUser = async (userId: string): Promise<void> => {
+  const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
+
+  if (user.role === UserRole.LIBRARIAN || user.email === "zywiolek@gmail.com") {
+    throw httpErrors.badRequest("Nie można usunąć tego użytkownika");
+  }
+
   await prisma.user.update({
     where: { id: userId },
     data: {
@@ -58,6 +64,10 @@ export const changePassword = async (
   dto: ChangePasswordDto,
   currentUser: CurrentUser
 ): Promise<User> => {
+  if (["janina@gmail.com", "zywiolek@gmail.com"].includes(currentUser.email)) {
+    throw httpErrors.badRequest("Nie można zmienić hasła dla tego użytkownika.");
+  }
+
   const isNewPasswordsEqual = dto.newPassword === dto.repeatedNewPassword;
 
   if (!isNewPasswordsEqual) {

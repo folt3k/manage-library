@@ -3,6 +3,7 @@ declare namespace Express {
     user: {
       id: string;
       role: "LIBRARIAN" | "READER";
+      email: string;
     };
   }
 }

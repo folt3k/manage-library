@@ -31,6 +31,7 @@ export const auth =
         select: {
           id: true,
           role: true,
+          email: true,
         },
       });
 
@@ -38,6 +39,7 @@ export const auth =
         req.user = {
           id: user.id,
           role: user.role,
+          email: user.email,
         };
 
         if (options.roles?.length && !options.roles.includes(user.role)) {
