@@ -109,7 +109,7 @@ export const getAssetRentals = async (
           return {
             copy: {
               asset: {
-                title: sortOrder
+                title: sortOrder,
               },
             },
           };
@@ -286,6 +286,7 @@ export const getAssetRentalsByUserId = async (
   const data = await prisma.assetRental.findMany({
     where: {
       userId,
+      isReturned: false,
     },
     orderBy: {
       isReturned: "asc",
