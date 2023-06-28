@@ -3,11 +3,21 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const users: any = await prisma.user.findRaw();
-
-  for (const user of users) {
-    await prisma.user.update({ where: { id: user._id.$oid }, data: { pesel: user.pesel.toString() } });
-  }
+  await prisma.user.create({
+    data: {
+      email: "janina@gmail.com",
+      password: "$2b$10$BcKlU4fMEVnpUWOmSbTUdO6.0O5sAsOWupGqWMubxnZI5w8yL4arW",
+      firstName: "Janina",
+      lastName: "Kowalska",
+      pesel: "78122012899",
+      phoneNumber: 123123213,
+      role: "LIBRARIAN",
+      createdAt: new Date(1663680691898),
+      updatedAt: new Date(1663680691898),
+      isActive: true,
+      disabled: false,
+    },
+  });
 }
 
 main()

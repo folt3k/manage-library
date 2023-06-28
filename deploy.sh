@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ssh root@145.239.86.58 << 'ENDSSH'
+ssh root@57.128.201.16 << 'ENDSSH'
 cd /var/www/library-cms/backend
 
 git stash
