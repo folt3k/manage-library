@@ -7,5 +7,5 @@
 #chgrp 999 ./docker/replica.key
 
 docker compose -f docker-compose.yaml down
-#docker build -t library-cms-app:latest .
+docker build -t library-cms-app:latest .
 docker compose -f docker-compose.yaml up -d

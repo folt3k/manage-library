@@ -12,9 +12,9 @@ ENV JWT_SECRET=secret_key_dev_2022
 ENV PORT=8000
 ENV APP_URL=http://localhost:8000
 
+RUN rm -rf ./dist
+RUN npx prisma generate
 RUN npm run build
 
-CMD ["npx", "prisma", "generate"]
-CMD ["npx", "prisma", "db", "push"]
-CMD ["npx", "prisma", "db", "seed"]
-CMD ["npm", "run", "start"]
+CMD ["./docker/app-setup.sh"]
+

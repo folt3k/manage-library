@@ -34,7 +34,7 @@ services:
       #      interval: 10s
       #      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongosh localhost:27017/test --quiet) -eq 1
       test: |
-        test $$(mongosh --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 1, host: 'library-cms-mongo:27017' }] }).ok } catch (_) { rs.status().ok }") -eq 1
+        test $$(mongosh -u admin -p password --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'library-cms-mongo:27017' }] }).ok } catch (_) { rs.status().ok }") -eq 1
       interval: 10s
   library-cms-app:
     image: library-cms-app:latest

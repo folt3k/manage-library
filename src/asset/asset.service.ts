@@ -1,5 +1,5 @@
 import { omit } from "lodash";
-import { AssetType } from "@prisma/client";
+import { Asset, AssetType } from "@prisma/client";
 
 import prisma from "../../prisma/client";
 import { UpsertAssetDto, CreateAssetImageDto } from "./asset.types";
@@ -17,7 +17,13 @@ import { mapParamToArray } from "../common/utils/filters.utils";
 export const createAsset = async (dto: UpsertAssetDto): Promise<{ id: string }> => {
   const asset = await prisma.asset.create({
     data: {
-      ...omit(dto, ["imageId", "authorId"]),
+      title: dto.title,
+      publisher: dto.publisher,
+      publicationYear: dto.publicationYear,
+      description: dto.description,
+      isbn: dto.isbn,
+      lubimyczytacLink: dto.lubimyczytacLink,
+      type: dto.type,
       author: {
         connect: {
           id: dto.authorId,
@@ -43,7 +49,13 @@ export const updateAsset = async (assetId: string, dto: UpsertAssetDto): Promise
       id: assetId,
     },
     data: {
-      ...omit(dto, ["imageId", "authorId"]),
+      title: dto.title,
+      publisher: dto.publisher,
+      publicationYear: dto.publicationYear,
+      description: dto.description,
+      isbn: dto.isbn,
+      lubimyczytacLink: dto.lubimyczytacLink,
+      type: dto.type,
       ...(dto.authorId
         ? {
             author: {
