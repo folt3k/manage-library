@@ -1,3 +1,4 @@
 #!/bin/bash
 
-npx run start
+npx prisma db push
+npm run start
