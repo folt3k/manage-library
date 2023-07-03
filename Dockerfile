@@ -16,5 +16,5 @@ RUN rm -rf ./dist
 RUN npx prisma generate
 RUN npm run build
 
-CMD ["./docker/app-setup.sh"]
+CMD ["sh ./docker/app-setup.sh"]
 

@@ -3,18 +3,18 @@ volumes:
   -mongo-data:
     driver: local
 services:
-  #  library-cms-mongo-replica-setup:
-  #    container_name: library-cms-mongo-replica-setup
-  #    image: mongo
-  #    restart: on-failure
-  #    volumes:
-  #      - ./docker/mongo-setup.sh:/scripts/mongo-setup.sh
-  #    entrypoint: [ "bash", "/scripts/mongo-setup.sh" ]
-  #    environment:
-  #      - MONGO_INITDB_ROOT_USERNAME=admin
-  #      - MONGO_INITDB_ROOT_PASSWORD=password
-  #    depends_on:
-  #      - library-cms-mongo
+  library-cms-mongo-setup:
+    container_name: library-cms-mongo-replica-setup
+    image: mongo
+    restart: on-failure
+    volumes:
+      - ./docker/mongo-setup.sh:/scripts/mongo-setup.sh
+    entrypoint: [ "bash", "/scripts/mongo-setup.sh" ]
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    depends_on:
+      - library-cms-mongo
   library-cms-mongo:
     image: mongo
     container_name: library-cms-mongo
@@ -29,12 +29,7 @@ services:
     restart: on-failure
     command: "--bind_ip_all --keyFile /auth/file.key --replSet rs0"
     healthcheck:
-      #      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      #      test: echo 'rs.status().ok' | mongosh admin --port 27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
-      #      interval: 10s
-      #      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongosh localhost:27017/test --quiet) -eq 1
-      test: |
-        test $$(mongosh -u admin -p password --quiet --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'library-cms-mongo:27017' }] }).ok } catch (_) { rs.status().ok }") -eq 1
+      test: echo 'rs.status().ok' | mongosh --port 27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
       interval: 10s
   library-cms-app:
     image: library-cms-app:latest
