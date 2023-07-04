@@ -5,10 +5,10 @@ volumes:
 services:
   library-cms-mongo-setup:
     container_name: library-cms-mongo-replica-setup
-    image: mongo
+    image: library-cms-mongo:latest
     restart: on-failure
     volumes:
-      - ./docker/mongo-setup.sh:/scripts/mongo-setup.sh
+      - ./docker/mongo/setup.sh:/scripts/mongo-setup.sh
     entrypoint: [ "bash", "/scripts/mongo-setup.sh" ]
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
@@ -16,7 +16,7 @@ services:
     depends_on:
       - library-cms-mongo
   library-cms-mongo:
-    image: mongo
+    image: library-cms-mongo:latest
     container_name: library-cms-mongo
     ports:
       - 27018:27017
@@ -25,9 +25,9 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
       - -mongo-data:/data/db
-      - ./docker/replica.key:/auth/file.key
+#      - ./docker/replica.key:/auth/file.key
     restart: on-failure
-    command: "--bind_ip_all --keyFile /auth/file.key --replSet rs0"
+    command: "--bind_ip_all --keyFile /opt/replica.key --replSet rs0"
     healthcheck:
       test: echo 'rs.status().ok' | mongosh --port 27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
       interval: 10s
